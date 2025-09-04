@@ -85,7 +85,7 @@ export default function JoinForm({ isOpen, onClose, onAddStudent }: JoinFormProp
     if (!formData.primarySkill) newErrors.primarySkill = 'Please select an option'
     if (!formData.gradYear.trim()) newErrors.gradYear = 'Please enter a value'
     if (!formData.phoneNumber.trim()) newErrors.phoneNumber = 'Please enter a value'
-    if (!formData.profilePhoto) newErrors.profilePhoto = 'Please upload a file'
+    if (!formData.profilePhoto || formData.profilePhoto === null) newErrors.profilePhoto = 'Please upload a file'
 
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
