@@ -23,6 +23,21 @@ interface FormData {
   profilePhoto: File | null
 }
 
+interface FormErrors {
+  name?: string
+  header?: string
+  description?: string
+  primarySkill?: string
+  secondarySkills?: string
+  gradYear?: string
+  personalSite?: string
+  xUrl?: string
+  linkedinUrl?: string
+  clubs?: string
+  phoneNumber?: string
+  profilePhoto?: string
+}
+
 const skills = ['Product', 'Fullstack', 'Frontend', 'Backend', 'Mobile', 'Design', 'Art', 'Marketing', 'Venture', 'Hardware']
 const clubs = ['SEP', 'LavaLab', 'TroyLabs', 'Spark', 'Sundays']
 
@@ -42,7 +57,7 @@ export default function JoinForm({ isOpen, onClose, onAddStudent }: JoinFormProp
     profilePhoto: null
   })
 
-  const [errors, setErrors] = useState<Partial<FormData>>({})
+  const [errors, setErrors] = useState<FormErrors>({})
 
   const handleInputChange = (field: keyof FormData, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }))
