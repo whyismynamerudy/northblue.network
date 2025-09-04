@@ -1,6 +1,7 @@
 import BackgroundOverlay from './BackgroundOverlay'
 
 interface ProfileCardProps {
+  id: string
   name: string
   gradYear: string
   role: string
@@ -12,6 +13,7 @@ interface ProfileCardProps {
 }
 
 export default function ProfileCard({
+  id,
   name,
   gradYear,
   role,
@@ -22,7 +24,7 @@ export default function ProfileCard({
   personalSite
 }: ProfileCardProps) {
   return (
-      <div className="flex items-start space-x-4">
+      <div id={id} className="flex items-start space-x-4">
         {/* Profile Image */}
         <div className="flex-shrink-0">
           {profileImage ? (

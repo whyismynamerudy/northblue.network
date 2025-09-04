@@ -214,6 +214,17 @@ export default function Home() {
     setStudentsList(prev => [...prev, student])
   }
 
+  const scrollToStudent = (studentName: string) => {
+    const elementId = studentName.toLowerCase().replace(/\s+/g, '-')
+    const element = document.getElementById(elementId)
+    if (element) {
+      element.scrollIntoView({ 
+        behavior: 'smooth',
+        block: 'center'
+      })
+    }
+  }
+
   return (
     <BackgroundOverlay 
       gradientFrom="from-gray-900" 
@@ -226,21 +237,23 @@ export default function Home() {
 
         {/* Left Column - Search */}
         <div className="w-1/4 fixed left-0 top-0 h-full z-10">
-          <SearchSidebar 
-            searchTerm={searchTerm}
-            onSearchChange={setSearchTerm}
-            students={filteredStudents}
-          />
+                  <SearchSidebar 
+          searchTerm={searchTerm}
+          onSearchChange={setSearchTerm}
+          students={filteredStudents}
+          onStudentClick={scrollToStudent}
+        />
         </div>
 
         {/* Middle Column - Profile Cards */}
         <div className="w-1/3 max-w-1/3 overflow-y-auto mx-auto">
           <HeroSection />
           
-          <div className="p-6 space-y-40">
+          <div className="p-6 pb-40 space-y-40">
             {filteredStudents.map((student, index) => (
               <ProfileCard
                 key={index}
+                id={student.name.toLowerCase().replace(/\s+/g, '-')}
                 name={student.name}
                 gradYear={student.gradYear}
                 role={student.header}

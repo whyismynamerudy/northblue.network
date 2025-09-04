@@ -9,8 +9,8 @@ const ibmPlexMono = IBM_Plex_Mono({
 })
 
 export const metadata: Metadata = {
-  title: 'uwo.so',
-  description: 'A modern Next.js application',
+  title: 'Explore Mustangs',
+  description: 'A network of Western students and alumni in tech',
 }
 
 export default function RootLayout({
