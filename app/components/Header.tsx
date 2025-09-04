@@ -4,7 +4,7 @@ interface HeaderProps {
 
 export default function Header({ onJoinClick }: HeaderProps) {
   return (
-    <div className="flex justify-between items-center p-6">
+    <div className="fixed top-0 left-0 right-0 z-20 flex justify-between items-center p-6">
       <p className="text-white text-sm">mustangs.so</p>
       <button 
         onClick={onJoinClick}

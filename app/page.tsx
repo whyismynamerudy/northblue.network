@@ -233,10 +233,10 @@ export default function Home() {
       className="min-h-screen"
     >
       <Header onJoinClick={() => setShowJoinForm(true)} />
-      <div className="min-h-screen flex">        
+      <div className="min-h-screen flex pt-16">        
 
         {/* Left Column - Search */}
-        <div className="w-1/4 fixed left-0 top-0 h-full z-10">
+        <div className="w-1/4 fixed left-0 top-16 h-full z-10">
                   <SearchSidebar 
           searchTerm={searchTerm}
           onSearchChange={setSearchTerm}
@@ -268,7 +268,7 @@ export default function Home() {
         </div>
 
         {/* Right Column - Skills Selector */}
-        <div className="w-1/4 p-6 fixed right-0 top-0 h-full overflow-y-auto">
+        <div className="w-1/4 p-6 fixed right-0 top-16 h-full overflow-y-auto">
           <SkillsSelector
             primarySkill={primarySkill}
             secondarySkills={secondarySkills}
