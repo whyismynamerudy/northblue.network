@@ -2,12 +2,12 @@ export default function HeroSection() {
   return (
     <div className="h-screen px-6 py-8 text-center flex flex-col justify-center">      
       <div className="text-center max-w-2xl mx-auto">
-      <div className="text-sm text-white mb-4 font-mono-subtitle">
-        By <a href="https://mayalekhi.ca" target="_blank" rel="noopener noreferrer" className="underline">Maya Lekhi</a>.
+      <div className="text-xs text-gray-400 mb-4 font-mono-subtitle">
+        By <a href="https://x.com/maya_l39" target="_blank" rel="noopener noreferrer" className="underline">Maya Lekhi</a>. Inspired by <a href="https://x.com/joshuawolk" target="_blank" rel="noopener noreferrer" className="underline">Josh Wolk</a>.
       </div>
 
         <h1 className="text-6xl font-editorial mb-6 tracking-tight text-white">
-          MUSTANGS<span className="italic">.so</span>
+          MUSTANGS
         </h1>
         
         <div className="text-lg text-white mb-8">
@@ -15,8 +15,8 @@ export default function HeroSection() {
         </div>
         
         <p className="text-lg text-white opacity-60 leading-relaxed mb-12">
-          Welcome to the directory of students and alumni at the University of Western Ontario. 
-          This project documents one of the most talented student bodies in the world—meet the Mustang Network.
+        Meet the creators, builders, and dreamers of Western University. 
+        Welcome to the Mustangs Network.
         </p>
         
         <div className="flex flex-col items-center">
