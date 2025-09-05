@@ -6,6 +6,7 @@ import JoinForm from './components/JoinForm'
 import ProfileCard from './components/ProfileCard'
 import SkillsSelector from './components/SkillsSelector'
 import SearchSidebar from './components/SearchSidebar'
+import FilterModal from './components/FilterModal'
 import HeroSection from './components/HeroSection'
 import BackgroundOverlay from './components/BackgroundOverlay'
 
@@ -202,14 +203,26 @@ export default function Home() {
   const [skillType, setSkillType] = useState<'primary' | 'secondary'>('primary')
   const [focusedStudent, setFocusedStudent] = useState<Student | null>(null)
   const [showSidebars, setShowSidebars] = useState(false)
+  const [showFilterModal, setShowFilterModal] = useState(false)
+  const [selectedSkills, setSelectedSkills] = useState<string[]>([])
+  const [selectedYears, setSelectedYears] = useState<string[]>([])
 
   useEffect(() => {
-    const filtered = studentsList.filter(student =>
-      student.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      student.skill.toLowerCase().includes(searchTerm.toLowerCase())
-    )
+    const filtered = studentsList.filter(student => {
+      const matchesSearch = student.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        student.site.toLowerCase().includes(searchTerm.toLowerCase())
+      
+      const matchesSkills = selectedSkills.length === 0 || 
+        selectedSkills.includes(student.skill) ||
+        (student.secondarySkills && student.secondarySkills.some(skill => selectedSkills.includes(skill)))
+      
+      const matchesYears = selectedYears.length === 0 || 
+        selectedYears.includes(student.gradYear)
+      
+      return matchesSearch && matchesSkills && matchesYears
+    })
     setFilteredStudents(filtered)
-  }, [searchTerm, studentsList])
+  }, [searchTerm, studentsList, selectedSkills, selectedYears])
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -310,6 +323,22 @@ export default function Home() {
     }
   }
 
+  const handleSkillToggle = (skill: string) => {
+    setSelectedSkills(prev => 
+      prev.includes(skill) 
+        ? prev.filter(s => s !== skill)
+        : [...prev, skill]
+    )
+  }
+
+  const handleYearToggle = (year: string) => {
+    setSelectedYears(prev => 
+      prev.includes(year) 
+        ? prev.filter(y => y !== year)
+        : [...prev, year]
+    )
+  }
+
   return (
     <BackgroundOverlay 
       gradientFrom="from-gray-900" 
@@ -329,6 +358,7 @@ export default function Home() {
             onSearchChange={setSearchTerm}
             students={filteredStudents}
             onStudentClick={scrollToStudent}
+            onFilterClick={() => setShowFilterModal(true)}
           />
         </div>
 
@@ -368,6 +398,16 @@ export default function Home() {
 
         {/* Join Form Modal */}
         <JoinForm isOpen={showJoinForm} onClose={() => setShowJoinForm(false)} onAddStudent={addStudent} />
+        
+        {/* Filter Modal */}
+        <FilterModal 
+          isOpen={showFilterModal}
+          onClose={() => setShowFilterModal(false)}
+          selectedSkills={selectedSkills}
+          selectedYears={selectedYears}
+          onSkillToggle={handleSkillToggle}
+          onYearToggle={handleYearToggle}
+        />
       </div>
     </BackgroundOverlay>
   )
