@@ -201,6 +201,7 @@ export default function Home() {
   const [secondarySkills, setSecondarySkills] = useState<string[]>([])
   const [skillType, setSkillType] = useState<'primary' | 'secondary'>('primary')
   const [focusedStudent, setFocusedStudent] = useState<Student | null>(null)
+  const [showSidebars, setShowSidebars] = useState(false)
 
   useEffect(() => {
     const filtered = studentsList.filter(student =>
@@ -222,6 +223,24 @@ export default function Home() {
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
   }, [studentsList])
+
+  // Track scroll position to show/hide sidebars
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollTop = window.scrollY || document.documentElement.scrollTop
+      const heroHeight = window.innerHeight // Assuming hero section is full height
+      
+      // Show sidebars when scrolled past hero section
+      setShowSidebars(scrollTop > heroHeight * 0.3) // Show when 30% past hero
+    }
+
+    // Initial check
+    handleScroll()
+
+    // Add scroll listener
+    window.addEventListener('scroll', handleScroll)
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
 
   // Track which student is in focus based on scroll position
   useEffect(() => {
@@ -302,13 +321,15 @@ export default function Home() {
       <div className="min-h-screen flex pt-16">        
 
         {/* Left Column - Search */}
-        <div className="w-1/4 fixed left-0 top-16 h-full z-10">
-                  <SearchSidebar 
-          searchTerm={searchTerm}
-          onSearchChange={setSearchTerm}
-          students={filteredStudents}
-          onStudentClick={scrollToStudent}
-        />
+        <div className={`w-1/4 fixed left-0 top-16 h-full z-10 transition-opacity duration-500 ${
+          showSidebars ? 'opacity-100' : 'opacity-0'
+        }`}>
+          <SearchSidebar 
+            searchTerm={searchTerm}
+            onSearchChange={setSearchTerm}
+            students={filteredStudents}
+            onStudentClick={scrollToStudent}
+          />
         </div>
 
         {/* Middle Column - Profile Cards */}
@@ -334,7 +355,9 @@ export default function Home() {
         </div>
 
         {/* Right Column - Skills Selector */}
-        <div className="w-1/4 p-6 fixed right-0 top-16 h-full overflow-y-auto">
+        <div className={`w-1/4 p-6 fixed right-0 top-16 h-full overflow-y-auto transition-opacity duration-500 ${
+          showSidebars ? 'opacity-100' : 'opacity-0'
+        }`}>
           <SkillsSelector
             primarySkill={primarySkill}
             secondarySkills={secondarySkills}
