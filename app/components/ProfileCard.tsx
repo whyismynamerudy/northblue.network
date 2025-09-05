@@ -47,7 +47,7 @@ export default function ProfileCard({
         <div className="flex-1 min-w-0">
           {/* Grad Year */}
           
-          <div className="text-sm text-gray-300 mb-1 font-mono-subtitle uppercase">
+          <div className="text-sm text-gray-200 mb-1 font-mono-subtitle uppercase opacity-60">
             {personalSite && (
               <>
                 <a 
@@ -71,12 +71,12 @@ export default function ProfileCard({
           </div>
 
           {/* Role */}
-          <p className="text-gray-200 text-sm mb-3">
+          <p className="text-gray-200 text-lg mb-3">
             {role}
           </p>
 
           {/* Description */}
-          <p className="text-gray-300 text-sm leading-relaxed mb-4">
+          <p className="text-gray-500 text-lg leading-relaxed mb-4">
             {description}
           </p>
 

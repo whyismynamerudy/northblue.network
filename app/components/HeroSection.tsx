@@ -2,19 +2,19 @@ export default function HeroSection() {
   return (
     <div className="h-screen px-6 py-8 text-center flex flex-col justify-center">      
       <div className="text-center max-w-2xl mx-auto">
-      <div className="text-sm text-gray-300 mb-4 font-mono-subtitle">
-        By <a href="https://mayalekhi.ca" target="_blank" rel="noopener noreferrer" className="underline">Maya Lekhi</a>. Updated 1/2/25.
+      <div className="text-sm text-white mb-4 font-mono-subtitle">
+        By <a href="https://mayalekhi.ca" target="_blank" rel="noopener noreferrer" className="underline">Maya Lekhi</a>.
       </div>
 
         <h1 className="text-6xl font-editorial mb-6 tracking-tight text-white">
           MUSTANGS<span className="italic">.so</span>
         </h1>
         
-        <div className="text-lg text-gray-300 mb-8">
-          ⌘ + u for a random trojan site
+        <div className="text-lg text-white mb-8">
+          ⌘ + u for a random mustang site
         </div>
         
-        <p className="text-xl text-gray-200 leading-relaxed mb-12">
+        <p className="text-lg text-white opacity-60 leading-relaxed mb-12">
           Welcome to the directory of students and alumni at the University of Western Ontario. 
           This project documents one of the most talented student bodies in the world—meet the Mustang Network.
         </p>
