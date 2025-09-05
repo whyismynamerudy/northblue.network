@@ -18,7 +18,6 @@ interface FormData {
   personalSite: string
   xUrl: string
   linkedinUrl: string
-  clubs: string[]
   profilePhoto: File | null
 }
 
@@ -36,7 +35,6 @@ interface FormErrors {
 }
 
 const skills = ['Product', 'Fullstack', 'Frontend', 'Backend', 'Mobile', 'Design', 'Art', 'Marketing', 'Venture', 'Hardware']
-const clubs = ['SEP', 'LavaLab', 'TroyLabs', 'Spark', 'Sundays']
 
 export default function JoinForm({ isOpen, onClose, onAddStudent }: JoinFormProps) {
   const [formData, setFormData] = useState<FormData>({
@@ -49,7 +47,6 @@ export default function JoinForm({ isOpen, onClose, onAddStudent }: JoinFormProp
     personalSite: '',
     xUrl: '',
     linkedinUrl: '',
-    clubs: [],
     profilePhoto: null
   })
 
@@ -57,8 +54,8 @@ export default function JoinForm({ isOpen, onClose, onAddStudent }: JoinFormProp
 
   const handleInputChange = (field: keyof FormData, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }))
-    if (errors[field]) {
-      setErrors(prev => ({ ...prev, [field]: '' }))
+    if (field in errors && errors[field as keyof FormErrors]) {
+      setErrors(prev => ({ ...prev, [field as keyof FormErrors]: '' }))
     }
   }
 
@@ -71,14 +68,6 @@ export default function JoinForm({ isOpen, onClose, onAddStudent }: JoinFormProp
     }))
   }
 
-  const handleClubToggle = (club: string) => {
-    setFormData(prev => ({
-      ...prev,
-      clubs: prev.clubs.includes(club)
-        ? prev.clubs.filter(c => c !== club)
-        : [...prev.clubs, club]
-    }))
-  }
 
   const handlePhotoChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
@@ -95,7 +84,7 @@ export default function JoinForm({ isOpen, onClose, onAddStudent }: JoinFormProp
     if (!formData.description.trim()) newErrors.description = 'Please enter a value'
     if (!formData.primarySkill) newErrors.primarySkill = 'Please select an option'
     if (!formData.gradYear.trim()) newErrors.gradYear = 'Please enter a value'
-    if (!formData.profilePhoto) newErrors.profilePhoto = 'Please upload a file'
+    if (!formData.profilePhoto || formData.profilePhoto === null) newErrors.profilePhoto = 'Please upload a file'
 
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
@@ -133,7 +122,6 @@ export default function JoinForm({ isOpen, onClose, onAddStudent }: JoinFormProp
         personalSite: '',
         xUrl: '',
         linkedinUrl: '',
-        clubs: [],
         profilePhoto: null
       })
     }
