@@ -15,7 +15,8 @@ export default function HeroSection() {
         </div>
         
         <p className="text-lg text-white opacity-60 leading-relaxed mb-12">
-        Meet the creators, builders, and dreamers of Western University. 
+        Meet the builders, creators, and dreamers of Western University. 
+        These talented students and alumni are defining the next generation of leadership and creative excellence.
         Welcome to the Mustangs Network.
         </p>
         

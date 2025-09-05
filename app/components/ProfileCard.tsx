@@ -24,10 +24,9 @@ export default function ProfileCard({
   personalSite
 }: ProfileCardProps) {
   return (
-      <div id={id} className="flex items-start space-x-4">
-        {/* Profile Image */}
-        <div className="flex flex-col space-y-2">
+    <div id={id} className="flex items-start space-x-4">
         <div className="flex-shrink-0">
+          {/* Profile Image */}
           {profileImage ? (
             <img
               src={profileImage}
@@ -47,7 +46,7 @@ export default function ProfileCard({
         <div className="flex-1 min-w-0">
           {/* Grad Year */}
           
-          <div className="text-sm text-gray-200 mb-1 font-mono-subtitle uppercase opacity-60">
+          <div className="text-sm text-gray-200 mb-2 font-mono-subtitle uppercase opacity-60">
             {personalSite && (
               <>
                 <a 
@@ -68,7 +67,6 @@ export default function ProfileCard({
           <h1 className="text-5xl font-editorial text-white mb-2">
             {name}
           </h1>
-          </div>
 
           {/* Role */}
           <p className="text-gray-200 text-lg mb-3">

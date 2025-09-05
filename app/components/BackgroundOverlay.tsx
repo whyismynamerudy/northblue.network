@@ -53,7 +53,7 @@ export default function BackgroundOverlay({
                left: '25%', 
                width: '300px', 
                height: '300px',
-               transform: 'translate(-50%, 40%)',
+               transform: 'translate(50%, 40%)',
                filter: 'blur(100px)'
              }} />
         
@@ -71,7 +71,7 @@ export default function BackgroundOverlay({
              }} />
 
         {/* Shape 6 - Huge */}
-        <div className="absolute rounded-full opacity-15 animate-pulse" 
+        <div className="absolute rounded-full opacity-35 animate-pulse" 
              style={{ 
                animationDuration: '20s', 
                animationDelay: '1.8s',

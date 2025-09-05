@@ -64,8 +64,10 @@ export default function SkillsSelector({
               key={skill}
               className={`flex items-center space-x-2 py-1 rounded transition-opacity ${isSelected ? 'opacity-100' : 'opacity-10'}`}
             >
-              <div className={`w-6 h-6 border-2 border-white rounded-full ${
-                isPrimary ? 'bg-white' : 'bg-transparent'
+              <div className={`w-6 h-6 rounded-full ${
+                isPrimary ? 'bg-white' : 
+                isSecondary ? 'bg-transparent border-2 border-white' : 
+                'bg-transparent'
               }`} />
               <span className={`text-sm font-medium ${
                 isSelected ? 'text-white' : 'text-gray-300'
