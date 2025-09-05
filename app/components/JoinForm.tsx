@@ -115,6 +115,7 @@ export default function JoinForm({ isOpen, onClose, onAddStudent }: JoinFormProp
         header: formData.header,
         description: formData.description,
         skill: formData.primarySkill,
+        secondarySkills: formData.secondarySkills,
         gradYear: formData.gradYear,
         personalSite: formData.personalSite,
         xUrl: formData.xUrl,

@@ -4,6 +4,10 @@ interface SkillsSelectorProps {
   primarySkill: string
   secondarySkills: string[]
   skillType: 'primary' | 'secondary'
+  focusedStudent?: {
+    name: string
+    skill: string
+  } | null
 }
 
 const skills = [
@@ -14,9 +18,11 @@ const skills = [
 export default function SkillsSelector({
   primarySkill,
   secondarySkills,
-  skillType
+  skillType,
+  focusedStudent
 }: SkillsSelectorProps) {
-  const currentSkills = skillType === 'primary' ? [primarySkill].filter(Boolean) : secondarySkills
+  // Show both primary and secondary skills
+  const allSelectedSkills = [...(primarySkill ? [primarySkill] : []), ...secondarySkills]
 
   return (
     <>
@@ -53,19 +59,17 @@ export default function SkillsSelector({
         {/* Skills Grid */}
         <div className="grid grid-cols-2 gap-4">
           {skills.map((skill, index) => {
-            const isSelected = currentSkills.includes(skill)
+            const isPrimary = skill === primarySkill
+            const isSecondary = secondarySkills.includes(skill)
+            const isSelected = isPrimary || isSecondary
             
             return (
               <div
                 key={skill}
-                className={`flex items-center space-x-3 p-2 rounded ${
-                  isSelected ? 'bg-white bg-opacity-20' : ''
-                }`}
+                className={`flex items-center space-x-3 p-2 rounded transition-opacity ${isSelected ? 'opacity-100' : 'opacity-10'}`}
               >
-                <div className={`w-4 h-4 border-2 border-white ${
-                  skillType === 'primary' ? 'rounded-full' : 'rounded'
-                } ${
-                  isSelected ? 'bg-white' : 'bg-transparent'
+                <div className={`w-4 h-4 border-2 border-white rounded-full ${
+                  isPrimary ? 'bg-white' : 'bg-transparent'
                 }`} />
                 <span className={`text-sm font-medium ${
                   isSelected ? 'text-white' : 'text-gray-300'
@@ -80,7 +84,7 @@ export default function SkillsSelector({
         {/* Selection Info */}
         {skillType === 'secondary' && (
           <div className="mt-4 text-xs text-gray-300">
-            Selected: {currentSkills.length}/8 skills
+            Selected: {secondarySkills.length}/8 skills
           </div>
         )}
         </>
