@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { supabase } from '../lib/supabase'
 import Header from './components/Header'
 import JoinForm from './components/JoinForm'
 import ProfileCard from './components/ProfileCard'
@@ -24,179 +25,11 @@ interface Student {
   profileImage?: string
 }
 
-const students: Student[] = [
-  { 
-    name: "Jade Franson", 
-    site: "jadefranson.com", 
-    skill: "Design",
-    secondarySkills: ["Frontend", "Marketing"],
-    header: "Jade is a creative designer passionate about visual storytelling.",
-    description: "Jade specializes in brand identity and digital design, with a focus on creating memorable user experiences. Loves photography and hiking.",
-    gradYear: "2024",
-    linkedinUrl: "https://linkedin.com/in/jadefranson",
-    xUrl: "https://x.com/jadefranson",
-    personalSite: "https://jadefranson.com"
-  },
-  { 
-    name: "Advik Unni", 
-    site: "linkedin.com/in/advik-unni/", 
-    skill: "Product",
-    secondarySkills: ["Fullstack", "Marketing"],
-    header: "Advik is a product manager building innovative solutions.",
-    description: "Advik leads product development for early-stage startups, with expertise in user research and data-driven decision making.",
-    gradYear: "2023",
-    linkedinUrl: "https://linkedin.com/in/advik-unni",
-    xUrl: "https://x.com/advikunni"
-  },
-  { 
-    name: "Miki Safronov", 
-    site: "x.com/shubgaur", 
-    skill: "Fullstack",
-    secondarySkills: ["Backend", "Mobile"],
-    header: "Miki is a fullstack developer passionate about clean code.",
-    description: "Miki builds scalable web applications using modern technologies. Enjoys contributing to open source projects and mentoring.",
-    gradYear: "2025",
-    xUrl: "https://x.com/shubgaur",
-    personalSite: "https://mikisafronov.dev"
-  },
-  { 
-    name: "Sarah Chen", 
-    site: "sarahchen.dev", 
-    skill: "Design",
-    secondarySkills: ["Frontend", "Product"],
-    header: "Sarah is a UX designer focused on accessibility and inclusion.",
-    description: "Sarah creates inclusive digital experiences that work for everyone. Passionate about design systems and user research.",
-    gradYear: "2024",
-    linkedinUrl: "https://linkedin.com/in/sarahchen",
-    personalSite: "https://sarahchen.dev"
-  },
-  { 
-    name: "Alex Rodriguez", 
-    site: "alexr.tech", 
-    skill: "Hardware",
-    secondarySkills: ["Mobile", "Backend"],
-    header: "Alex is a hardware engineer building the future of IoT.",
-    description: "Alex designs embedded systems and IoT devices, with a focus on energy efficiency and wireless communication protocols.",
-    gradYear: "2023",
-    linkedinUrl: "https://linkedin.com/in/alexrodriguez",
-    personalSite: "https://alexr.tech"
-  },
-  { 
-    name: "Emma Wilson", 
-    site: "emmawilson.co", 
-    skill: "Product",
-    secondarySkills: ["Marketing", "Design"],
-    header: "Emma is a product strategist driving growth at scale.",
-    description: "Emma helps companies identify and execute on growth opportunities through data analysis and user insights.",
-    gradYear: "2022",
-    linkedinUrl: "https://linkedin.com/in/emmawilson",
-    personalSite: "https://emmawilson.co"
-  },
-  { 
-    name: "David Kim", 
-    site: "davidkim.io", 
-    skill: "Fullstack",
-    secondarySkills: ["Backend", "Mobile"],
-    header: "David is a software engineer building robust systems.",
-    description: "David specializes in backend architecture and database optimization, with experience in microservices and cloud platforms.",
-    gradYear: "2024",
-    linkedinUrl: "https://linkedin.com/in/davidkim",
-    personalSite: "https://davidkim.io"
-  },
-  { 
-    name: "Lisa Zhang", 
-    site: "lisazhang.com", 
-    skill: "Design",
-    secondarySkills: ["Frontend", "Art"],
-    header: "Lisa is a visual designer creating stunning interfaces.",
-    description: "Lisa combines artistic vision with technical expertise to create beautiful and functional digital products.",
-    gradYear: "2025",
-    linkedinUrl: "https://linkedin.com/in/lisazhang",
-    personalSite: "https://lisazhang.com"
-  },
-  { 
-    name: "Michael Torres", 
-    site: "michaelt.dev", 
-    skill: "Hardware",
-    secondarySkills: ["Mobile", "Backend"],
-    header: "Michael is an electrical engineer innovating in robotics.",
-    description: "Michael develops control systems for autonomous robots, with expertise in sensor fusion and machine learning integration.",
-    gradYear: "2023",
-    linkedinUrl: "https://linkedin.com/in/michaeltorres",
-    personalSite: "https://michaelt.dev"
-  },
-  { 
-    name: "Rachel Green", 
-    site: "rachelgreen.xyz", 
-    skill: "Product",
-    secondarySkills: ["Design", "Marketing"],
-    header: "Rachel is a product leader focused on user-centric design.",
-    description: "Rachel bridges the gap between user needs and business goals, creating products that users love and companies can scale.",
-    gradYear: "2022",
-    linkedinUrl: "https://linkedin.com/in/rachelgreen",
-    personalSite: "https://rachelgreen.xyz"
-  },
-  { 
-    name: "James Park", 
-    site: "jamespark.co", 
-    skill: "Fullstack",
-    secondarySkills: ["Frontend", "Mobile"],
-    header: "James is a developer passionate about performance optimization.",
-    description: "James builds fast, efficient web applications with a focus on user experience and code quality.",
-    gradYear: "2024",
-    linkedinUrl: "https://linkedin.com/in/jamespark",
-    personalSite: "https://jamespark.co"
-  },
-  { 
-    name: "Anna Lee", 
-    site: "annalee.design", 
-    skill: "Design",
-    secondarySkills: ["Art", "Marketing"],
-    header: "Anna is a creative director shaping brand experiences.",
-    description: "Anna leads design teams in creating cohesive brand experiences across all touchpoints and platforms.",
-    gradYear: "2023",
-    linkedinUrl: "https://linkedin.com/in/annalee",
-    personalSite: "https://annalee.design"
-  },
-  { 
-    name: "Chris Johnson", 
-    site: "chrisj.tech", 
-    skill: "Hardware",
-    secondarySkills: ["Backend", "Mobile"],
-    header: "Chris is a systems engineer building reliable infrastructure.",
-    description: "Chris designs and implements robust hardware systems for mission-critical applications in aerospace and automotive.",
-    gradYear: "2025",
-    linkedinUrl: "https://linkedin.com/in/chrisjohnson",
-    personalSite: "https://chrisj.tech"
-  },
-  { 
-    name: "Maya Patel", 
-    site: "mayapatel.io", 
-    skill: "Product",
-    secondarySkills: ["Marketing", "Design"],
-    header: "Maya is a product manager driving innovation in fintech.",
-    description: "Maya leads product development for financial technology solutions, with expertise in regulatory compliance and user experience.",
-    gradYear: "2024",
-    linkedinUrl: "https://linkedin.com/in/mayapatel",
-    personalSite: "https://mayapatel.io"
-  },
-  { 
-    name: "Ryan O'Connor", 
-    site: "ryanoc.dev", 
-    skill: "Fullstack",
-    secondarySkills: ["Backend", "Mobile"],
-    header: "Ryan is a software architect building scalable platforms.",
-    description: "Ryan designs and implements large-scale distributed systems, with expertise in cloud architecture and DevOps practices.",
-    gradYear: "2023",
-    linkedinUrl: "https://linkedin.com/in/ryanoconnor",
-    personalSite: "https://ryanoc.dev"
-  },
-]
 
 export default function Home() {
-  const [studentsList, setStudentsList] = useState(students)
+  const [studentsList, setStudentsList] = useState<Student[]>([])
   const [searchTerm, setSearchTerm] = useState('')
-  const [filteredStudents, setFilteredStudents] = useState(students)
+  const [filteredStudents, setFilteredStudents] = useState<Student[]>([])
   const [showJoinForm, setShowJoinForm] = useState(false)
   const [primarySkill, setPrimarySkill] = useState<string>('')
   const [secondarySkills, setSecondarySkills] = useState<string[]>([])
@@ -206,6 +39,59 @@ export default function Home() {
   const [showFilterModal, setShowFilterModal] = useState(false)
   const [selectedSkills, setSelectedSkills] = useState<string[]>([])
   const [selectedYears, setSelectedYears] = useState<string[]>([])
+
+  // Load students from Supabase on component mount
+  useEffect(() => {
+    const loadStudents = async () => {
+      if (!supabase) {
+        console.log('Supabase not configured, skipping data load')
+        return
+      }
+      
+      try {
+        console.log('Loading students from Supabase...')
+        const { data, error } = await supabase
+          .from('students')
+          .select('*')
+          .order('created_at', { ascending: false })
+        
+        console.log('Supabase response:', { data, error })
+        
+        if (error) {
+          console.error('Error loading students:', error)
+          return
+        }
+        
+        if (data && data.length > 0) {
+          console.log('Found students:', data.length)
+          // Transform Supabase data to match our interface
+          const transformedStudents = data.map(student => ({
+            name: student.name,
+            site: student.site,
+            skill: student.skill,
+            secondarySkills: student.secondary_skills || [],
+            header: student.header || '',
+            description: student.description || '',
+            gradYear: student.grad_year || '',
+            linkedinUrl: student.linkedin_url,
+            xUrl: student.x_url,
+            personalSite: student.personal_site,
+            profileImage: student.profile_image
+          }))
+          
+          console.log('Transformed students:', transformedStudents)
+          setStudentsList(transformedStudents)
+          setFilteredStudents(transformedStudents)
+        } else {
+          console.log('No students found in database')
+        }
+      } catch (error) {
+        console.error('Error:', error)
+      }
+    }
+    
+    loadStudents()
+  }, [])
 
   useEffect(() => {
     const filtered = studentsList.filter(student => {

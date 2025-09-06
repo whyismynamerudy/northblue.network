@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { supabase } from '../../lib/supabase'
 
 interface JoinFormProps {
   isOpen: boolean
@@ -81,7 +82,6 @@ export default function JoinForm({ isOpen, onClose, onAddStudent }: JoinFormProp
 
     if (!formData.name.trim()) newErrors.name = 'Please enter a value'
     if (!formData.header.trim()) newErrors.header = 'Please enter a value'
-    if (!formData.description.trim()) newErrors.description = 'Please enter a value'
     if (!formData.primarySkill) newErrors.primarySkill = 'Please select an option'
     if (!formData.gradYear.trim()) newErrors.gradYear = 'Please enter a value'
     if (!formData.profilePhoto || formData.profilePhoto === null) newErrors.profilePhoto = 'Please upload a file'
@@ -90,40 +90,80 @@ export default function JoinForm({ isOpen, onClose, onAddStudent }: JoinFormProp
     return Object.keys(newErrors).length === 0
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (validateForm()) {
-      // Create new student object
-      const newStudent = {
-        name: formData.name,
-        header: formData.header,
-        description: formData.description,
-        skill: formData.primarySkill,
-        secondarySkills: formData.secondarySkills,
-        gradYear: formData.gradYear,
-        personalSite: formData.personalSite,
-        xUrl: formData.xUrl,
-        linkedinUrl: formData.linkedinUrl,
-        profileImage: formData.profilePhoto ? URL.createObjectURL(formData.profilePhoto) : undefined
+      try {
+        // Create new student object for Supabase
+        const newStudent = {
+          name: formData.name,
+          site: formData.personalSite.replace(/^https?:\/\//, '').replace(/^www\./, ''),
+          skill: formData.primarySkill,
+          secondary_skills: formData.secondarySkills,
+          header: formData.header,
+          description: formData.description,
+          grad_year: formData.gradYear,
+          personal_site: formData.personalSite,
+          x_url: formData.xUrl,
+          linkedin_url: formData.linkedinUrl,
+          profile_image: formData.profilePhoto ? URL.createObjectURL(formData.profilePhoto) : undefined
+        }
+        
+        console.log('Submitting to Supabase:', newStudent)
+        
+        if (!supabase) {
+          console.error('Supabase not configured')
+          alert('Database not configured. Please check your environment variables.')
+          return
+        }
+        
+        // Insert into Supabase
+        const { data, error } = await supabase
+          .from('students')
+          .insert([newStudent])
+          .select()
+        
+        if (error) {
+          console.error('Error adding student:', error)
+          alert('Error adding student. Please try again.')
+          return
+        }
+        
+        console.log('Student added successfully:', data)
+        
+        // Add student to the local list for immediate display
+        onAddStudent({
+          name: formData.name,
+          header: formData.header,
+          description: formData.description,
+          skill: formData.primarySkill,
+          secondarySkills: formData.secondarySkills,
+          gradYear: formData.gradYear,
+          personalSite: formData.personalSite,
+          xUrl: formData.xUrl,
+          linkedinUrl: formData.linkedinUrl,
+          profileImage: formData.profilePhoto ? URL.createObjectURL(formData.profilePhoto) : undefined
+        })
+        
+        // Close modal and reset form
+        onClose()
+        setFormData({
+          name: '',
+          header: '',
+          description: '',
+          primarySkill: '',
+          secondarySkills: [],
+          gradYear: '',
+          personalSite: '',
+          xUrl: '',
+          linkedinUrl: '',
+          profilePhoto: null
+        })
+        setErrors({})
+      } catch (error) {
+        console.error('Error:', error)
+        alert('Error adding student. Please try again.')
       }
-      
-      // Add student to the list
-      onAddStudent(newStudent)
-      
-      // Close modal and reset form
-      onClose()
-      setFormData({
-        name: '',
-        header: '',
-        description: '',
-        primarySkill: '',
-        secondarySkills: [],
-        gradYear: '',
-        personalSite: '',
-        xUrl: '',
-        linkedinUrl: '',
-        profilePhoto: null
-      })
     }
   }
 
@@ -165,7 +205,7 @@ export default function JoinForm({ isOpen, onClose, onAddStudent }: JoinFormProp
               className={`w-full px-2 py-1 bg-transparent border border-gray-800 rounded-md text-white placeholder-gray-700 focus:outline-none text-base ${
                 errors.name ? 'border-red-500' : 'border-gray-600'
               }`}
-              placeholder="Joshua Wolk"
+              placeholder="Maya Lekhi"
             />
             {errors.name && <p className="text-red-400 text-sm mt-1">{errors.name}</p>}
           </div>
@@ -190,7 +230,7 @@ export default function JoinForm({ isOpen, onClose, onAddStudent }: JoinFormProp
           {/* Description */}
           <div>
             <label className="block text-lg font-light text-white mb-3">
-              Description *
+              Description
             </label>
             <textarea
               value={formData.description}
@@ -199,7 +239,7 @@ export default function JoinForm({ isOpen, onClose, onAddStudent }: JoinFormProp
               className={`w-full px-2 py-1 bg-transparent border border-gray-800 rounded-md text-white placeholder-gray-700 focus:outline-none text-base ${
                 errors.description ? 'border-red-500' : 'border-gray-600'
               }`}
-              placeholder="I'm a designer, developer, debate world champion, and award-winning writer."
+              placeholder="I'm a developer, designer, hackathon winner, and startup founder."
             />
             {errors.description && <p className="text-red-400 text-sm mt-1">{errors.description}</p>}
           </div>
