@@ -49,21 +49,17 @@ export default function Home() {
       }
       
       try {
-        console.log('Loading students from Supabase...')
         const { data, error } = await supabase
           .from('students')
           .select('*')
           .order('created_at', { ascending: false })
-        
-        console.log('Supabase response:', { data, error })
-        
+                
         if (error) {
           console.error('Error loading students:', error)
           return
         }
         
         if (data && data.length > 0) {
-          console.log('Found students:', data.length)
           // Transform Supabase data to match our interface
           const transformedStudents = data.map(student => ({
             name: student.name,
@@ -79,7 +75,6 @@ export default function Home() {
             profileImage: student.profile_image
           }))
           
-          console.log('Transformed students:', transformedStudents)
           setStudentsList(transformedStudents)
           setFilteredStudents(transformedStudents)
         } else {

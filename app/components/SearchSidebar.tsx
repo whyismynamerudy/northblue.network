@@ -5,6 +5,14 @@ interface SearchSidebarProps {
     name: string
     site: string
     skill: string
+    secondarySkills?: string[]
+    header: string
+    description: string
+    gradYear: string
+    linkedinUrl?: string
+    xUrl?: string
+    personalSite?: string
+    profileImage?: string
   }>
   onStudentClick: (studentName: string) => void
   onFilterClick: () => void

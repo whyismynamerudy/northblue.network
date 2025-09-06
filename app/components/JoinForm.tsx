@@ -20,6 +20,7 @@ interface FormData {
   xUrl: string
   linkedinUrl: string
   profilePhoto: File | null
+  profileImageBase64?: string
 }
 
 interface FormErrors {
@@ -48,7 +49,8 @@ export default function JoinForm({ isOpen, onClose, onAddStudent }: JoinFormProp
     personalSite: '',
     xUrl: '',
     linkedinUrl: '',
-    profilePhoto: null
+    profilePhoto: null,
+    profileImageBase64: undefined
   })
 
   const [errors, setErrors] = useState<FormErrors>({})
@@ -73,7 +75,13 @@ export default function JoinForm({ isOpen, onClose, onAddStudent }: JoinFormProp
   const handlePhotoChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
     if (file) {
-      setFormData(prev => ({ ...prev, profilePhoto: file }))
+      // Convert to base64 for storage
+      const reader = new FileReader()
+      reader.onload = (e) => {
+        const base64 = e.target?.result as string
+        setFormData(prev => ({ ...prev, profilePhoto: file, profileImageBase64: base64 }))
+      }
+      reader.readAsDataURL(file)
     }
   }
 
@@ -106,11 +114,9 @@ export default function JoinForm({ isOpen, onClose, onAddStudent }: JoinFormProp
           personal_site: formData.personalSite,
           x_url: formData.xUrl,
           linkedin_url: formData.linkedinUrl,
-          profile_image: formData.profilePhoto ? URL.createObjectURL(formData.profilePhoto) : undefined
+          profile_image: formData.profileImageBase64 || undefined
         }
-        
-        console.log('Submitting to Supabase:', newStudent)
-        
+                
         if (!supabase) {
           console.error('Supabase not configured')
           alert('Database not configured. Please check your environment variables.')
@@ -129,8 +135,6 @@ export default function JoinForm({ isOpen, onClose, onAddStudent }: JoinFormProp
           return
         }
         
-        console.log('Student added successfully:', data)
-        
         // Add student to the local list for immediate display
         onAddStudent({
           name: formData.name,
@@ -142,7 +146,7 @@ export default function JoinForm({ isOpen, onClose, onAddStudent }: JoinFormProp
           personalSite: formData.personalSite,
           xUrl: formData.xUrl,
           linkedinUrl: formData.linkedinUrl,
-          profileImage: formData.profilePhoto ? URL.createObjectURL(formData.profilePhoto) : undefined
+          profileImage: formData.profileImageBase64 || undefined
         })
         
         // Close modal and reset form
@@ -157,7 +161,8 @@ export default function JoinForm({ isOpen, onClose, onAddStudent }: JoinFormProp
           personalSite: '',
           xUrl: '',
           linkedinUrl: '',
-          profilePhoto: null
+          profilePhoto: null,
+          profileImageBase64: undefined
         })
         setErrors({})
       } catch (error) {
