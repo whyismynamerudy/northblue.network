@@ -9,8 +9,8 @@ const ibmPlexMono = IBM_Plex_Mono({
 })
 
 export const metadata: Metadata = {
-  title: 'Explore Mustangs - Western University Tech Network',
-  description: 'Connect with Western University students and alumni in tech. Discover talented developers, designers, and entrepreneurs from Western University.',
+  title: 'Explore Mustangs',
+  description: 'Meet Western University top students and alumni in tech.',
   keywords: [
     'Western University',
     'UWO',
@@ -21,7 +21,8 @@ export const metadata: Metadata = {
     'designers',
     'entrepreneurs',
     'London Ontario',
-    'university network'
+    'university network',
+    'Maya Lekhi'
   ],
   authors: [{ name: 'Explore Mustangs' }],
   creator: 'Explore Mustangs',
@@ -31,21 +32,21 @@ export const metadata: Metadata = {
     address: false,
     telephone: false,
   },
-  metadataBase: new URL('https://exploremustangs.com'),
+  metadataBase: new URL('https://mustangs.network'),
   alternates: {
     canonical: '/',
   },
   openGraph: {
-    title: 'Explore Mustangs - Western University Tech Network',
-    description: 'Connect with Western University students and alumni in tech. Discover talented developers, designers, and entrepreneurs from Western University.',
-    url: 'https://exploremustangs.com',
+    title: 'Explore Mustangs',
+    description: 'Meet Western University top students and alumni in tech.',
+    url: 'https://mustangs.network',
     siteName: 'Explore Mustangs',
     images: [
       {
         url: '/og-image.png',
         width: 1200,
         height: 630,
-        alt: 'Explore Mustangs - Western University Tech Network',
+        alt: 'Explore Mustangs',
       },
     ],
     locale: 'en_US',
@@ -53,11 +54,11 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Explore Mustangs - Western University Tech Network',
-    description: 'Connect with Western University students and alumni in tech. Discover talented developers, designers, and entrepreneurs from Western University.',
+    title: 'Explore Mustangs',
+    description: 'Meet Western University top students and alumni in tech.',
     images: ['/twitter-image.png'],
-    creator: '@exploremustangs',
-    site: '@exploremustangs',
+    creator: '@maya_l39',
+    site: '@maya_l39',
   },
   robots: {
     index: true,
@@ -71,12 +72,11 @@ export const metadata: Metadata = {
     },
   },
   verification: {
-    google: 'your-google-verification-code',
+    google: 'G-JX0C097Y1K',
   },
   icons: {
     icon: '/favicon.ico',
-    shortcut: '/favicon-16x16.png',
-    apple: '/apple-touch-icon.png',
+    shortcut: '/favicon-32x32.png',
   },
   manifest: '/site.webmanifest',
   category: 'technology',
