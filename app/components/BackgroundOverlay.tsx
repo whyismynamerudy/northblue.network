@@ -90,7 +90,7 @@ export default function BackgroundOverlay({
       <div 
         className="fixed inset-0 opacity-20 mix-blend-overlay"
         style={{
-          backgroundImage: 'url(/image.png)',
+          backgroundImage: 'url(/overlay.png)',
           backgroundSize: 'cover',
           backgroundPosition: 'center',
           backgroundRepeat: 'no-repeat'
