@@ -230,8 +230,8 @@ export default function Home() {
       <Header onJoinClick={() => setShowJoinForm(true)} />
       <div className="min-h-screen flex pt-16">        
 
-        {/* Left Column - Search */}
-        <div className={`w-1/4 fixed left-0 top-16 h-full z-10 transition-opacity duration-500 ${
+        {/* Left Column - Search - Hidden on mobile and iPad */}
+        <div className={`w-1/4 fixed left-0 top-16 h-full z-10 transition-opacity duration-500 hidden lg:block ${
           showSidebars ? 'opacity-100' : 'opacity-0'
         }`}>
           <SearchSidebar 
@@ -243,11 +243,11 @@ export default function Home() {
           />
         </div>
 
-        {/* Middle Column - Profile Cards */}
-        <div className="w-1/3 max-w-1/3 overflow-y-auto mx-auto">
+        {/* Middle Column - Profile Cards - Responsive width */}
+        <div className="w-full lg:w-1/3 lg:max-w-1/3 overflow-y-auto mx-auto px-4 lg:px-0">
           <HeroSection />
           
-          <div className="p-6 pb-40 space-y-40">
+          <div className="p-4 lg:p-6 pb-20 lg:pb-40 space-y-20 lg:space-y-40">
             {filteredStudents.map((student, index) => (
               <ProfileCard
                 key={index}
@@ -265,8 +265,8 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Right Column - Skills Selector */}
-        <div className={`w-1/4 p-6 fixed right-0 top-16 h-full overflow-y-auto transition-opacity duration-500 ${
+        {/* Right Column - Skills Selector - Hidden on mobile and iPad */}
+        <div className={`w-1/4 p-6 fixed right-0 top-16 h-full overflow-y-auto transition-opacity duration-500 hidden lg:block ${
           showSidebars ? 'opacity-100' : 'opacity-0'
         }`}>
           <SkillsSelector
