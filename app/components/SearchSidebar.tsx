@@ -66,9 +66,21 @@ export default function SearchSidebar({ searchTerm, onSearchChange, students, on
                   {student.name}
                 </div>
                 <div className="col-span-4 text-gray-400 cursor-pointer">
-                  <a href={`https://${student.site}`} target="_blank" rel="noopener noreferrer">
-                    {student.site}
-                  </a>
+                  {student.site && student.site !== '' ? (
+                    <a href={`https://${student.site}`} target="_blank" rel="noopener noreferrer">
+                      {student.site}
+                    </a>
+                  ) : student.linkedinUrl ? (
+                    <a href={student.linkedinUrl} target="_blank" rel="noopener noreferrer">
+                      {student.linkedinUrl.replace(/^https?:\/\//, '').replace(/^www\./, '')}
+                    </a>
+                  ) : student.xUrl ? (
+                    <a href={student.xUrl} target="_blank" rel="noopener noreferrer">
+                      {student.xUrl.replace(/^https?:\/\//, '').replace(/^www\./, '')}
+                    </a>
+                  ) : (
+                    <span className="text-gray-500">No links</span>
+                  )}
                 </div>
               </div>
             </div>
