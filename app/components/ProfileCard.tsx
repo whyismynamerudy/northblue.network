@@ -74,7 +74,7 @@ export default function ProfileCard({
           </p>
 
           {/* Description */}
-          <p className="text-gray-500 text-lg leading-relaxed mb-4">
+          <p className="text-gray-400 text-lg leading-relaxed mb-4">
             {description}
           </p>
 
