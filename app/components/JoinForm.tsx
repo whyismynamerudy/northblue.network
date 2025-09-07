@@ -93,6 +93,14 @@ export default function JoinForm({ isOpen, onClose, onAddStudent }: JoinFormProp
     if (!formData.primarySkill) newErrors.primarySkill = 'Please select an option'
     if (!formData.gradYear.trim()) newErrors.gradYear = 'Please enter a value'
     if (!formData.profilePhoto || formData.profilePhoto === null) newErrors.profilePhoto = 'Please upload a file'
+    
+    // Check word count for description (45 words max)
+    if (formData.description.trim()) {
+      const wordCount = formData.description.trim().split(/\s+/).filter(word => word.length > 0).length
+      if (wordCount > 45) {
+        newErrors.description = `Description must be <45 words (currently ${wordCount} words)`
+      }
+    }
 
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
@@ -234,9 +242,16 @@ export default function JoinForm({ isOpen, onClose, onAddStudent }: JoinFormProp
 
           {/* Description */}
           <div>
-            <label className="block text-lg font-light text-white mb-3">
-              Description
-            </label>
+            <div className="flex justify-between items-center mb-3">
+              <label className="block text-lg font-light text-white">
+                Description
+              </label>
+              <span className={`text-sm ${(() => {
+                const wordCount = formData.description.trim().split(/\s+/).filter(word => word.length > 0).length
+                return wordCount > 45 ? 'text-red-400' : 'text-gray-400'
+              })()}`}>
+              </span>
+            </div>
             <textarea
               value={formData.description}
               onChange={(e) => handleInputChange('description', e.target.value)}
