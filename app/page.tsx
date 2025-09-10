@@ -149,16 +149,23 @@ export default function Home() {
       const windowHeight = window.innerHeight
       const scrollBottom = scrollTop + windowHeight
 
-      // Find the first profile that's visible at the top
+      // Find the profile that's most visible in the viewport
       let focusedCard = null
+      let maxVisibleHeight = 0
+      
       for (const card of profileCards) {
         const cardTop = card.offsetTop
         const cardBottom = cardTop + card.offsetHeight
         
-        // Check if the card is at the top of the viewport
-        if (cardTop <= scrollTop + 100 && cardBottom > scrollTop) {
+        // Calculate how much of the card is visible
+        const visibleTop = Math.max(cardTop, scrollTop)
+        const visibleBottom = Math.min(cardBottom, scrollBottom)
+        const visibleHeight = Math.max(0, visibleBottom - visibleTop)
+        
+        // If this card is more visible than the current best, make it the focused card
+        if (visibleHeight > maxVisibleHeight) {
+          maxVisibleHeight = visibleHeight
           focusedCard = card
-          break
         }
       }
 
@@ -245,9 +252,9 @@ export default function Home() {
 
         {/* Middle Column - Profile Cards - Responsive width */}
         <div className="w-full lg:w-1/3 lg:max-w-1/3 overflow-y-auto mx-auto px-4 lg:px-0">
-          <HeroSection />
+          <HeroSection isLoading={filteredStudents.length === 0} />
           
-          <div className="p-4 lg:p-6 pb-20 lg:pb-40 space-y-20 lg:space-y-40">
+          <div className="p-4 lg:p-6 pb-20 lg:pb-40 mb-[20vh] space-y-40 lg:space-y-64">
             {filteredStudents.map((student, index) => (
               <ProfileCard
                 key={index}
