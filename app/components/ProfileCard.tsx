@@ -58,7 +58,7 @@ export default function ProfileCard({
                 >
                   {personalSite.replace(/^https?:\/\//, '').replace(/^www\./, '')}
                 </a>
-                <span> </span>
+                <span>&nbsp;</span>
               </>
             )}
             <span className="whitespace-nowrap">GRAD. {gradYear}</span>
