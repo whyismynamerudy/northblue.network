@@ -34,7 +34,7 @@ export default function SkillsSelector({
       {/* Primary/Secondary Display */}
       <div className="flex space-x-4 mb-4">
         <div className="flex items-center space-x-1.5">
-          <div className={`w-4 h-4 border-2 border-white rounded-full ${
+          <div className={`w-4 h-4 border border-white rounded-full ${
             skillType === 'primary' ? 'bg-white' : 'bg-transparent'
           }`} />
           <span className={`text-xs font-medium font-mono-subtitle text-gray-400`}>
@@ -43,7 +43,7 @@ export default function SkillsSelector({
         </div>
 
         <div className="flex items-center space-x-1.5">
-          <div className={`w-4 h-4 border-2 border-white rounded-full ${
+          <div className={`w-4 h-4 border border-white rounded-full ${
             skillType === 'secondary' ? 'bg-white' : 'bg-transparent'
           }`} />
           <span className={`text-xs font-medium font-mono-subtitle text-gray-400`}>
@@ -66,7 +66,7 @@ export default function SkillsSelector({
             >
               <div className={`w-6 h-6 rounded-full ${
                 isPrimary ? 'bg-white' : 
-                isSecondary ? 'bg-transparent border-2 border-white' : 
+                isSecondary ? 'bg-transparent border border-white' : 
                 'bg-transparent'
               }`} />
               <span className={`text-sm font-medium ${
