@@ -204,9 +204,11 @@ export default function Home() {
     const elementId = studentName.toLowerCase().replace(/\s+/g, '-')
     const element = document.getElementById(elementId)
     if (element) {
-      element.scrollIntoView({ 
-        behavior: 'smooth',
-        block: 'start'
+      const elementTop = element.offsetTop
+      const offset = 100 // Scroll 100px higher than the element
+      window.scrollTo({
+        top: elementTop - offset,
+        behavior: 'smooth'
       })
     }
   }
