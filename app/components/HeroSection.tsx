@@ -25,13 +25,17 @@ export default function HeroSection({ isLoading = false }: HeroSectionProps) {
         </p>
         
         <div className="flex flex-col items-center">
-          <div className="text-lg text-white mb-2">
-            {isLoading ? 'Loading mustangs...' : 'Scroll to begin.'}
-          </div>
-          {!isLoading && (
-            <svg className="w-6 h-6 animate-bounce" fill="none" stroke="white" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
-            </svg>
+          {isLoading ? (
+            <div className="flex flex-col items-center">
+              <div className="w-8 h-8 border-2 border-white border-t-transparent rounded-full animate-spin mb-2"></div>
+            </div>
+          ) : (
+            <>
+              <div className="text-lg text-white mb-2">Scroll to begin.</div>
+              <svg className="w-6 h-6 animate-bounce" fill="none" stroke="white" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+              </svg>
+            </>
           )}
         </div>
       </div>
