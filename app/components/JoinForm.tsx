@@ -20,7 +20,6 @@ interface FormData {
   xUrl: string
   linkedinUrl: string
   profilePhoto: File | null
-  profileImageBase64?: string
 }
 
 interface FormErrors {
@@ -50,7 +49,6 @@ export default function JoinForm({ isOpen, onClose, onAddStudent }: JoinFormProp
     xUrl: '',
     linkedinUrl: '',
     profilePhoto: null,
-    profileImageBase64: undefined
   })
 
   const [errors, setErrors] = useState<FormErrors>({})
@@ -75,13 +73,7 @@ export default function JoinForm({ isOpen, onClose, onAddStudent }: JoinFormProp
   const handlePhotoChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
     if (file) {
-      // Convert to base64 for storage
-      const reader = new FileReader()
-      reader.onload = (e) => {
-        const base64 = e.target?.result as string
-        setFormData(prev => ({ ...prev, profilePhoto: file, profileImageBase64: base64 }))
-      }
-      reader.readAsDataURL(file)
+      setFormData(prev => ({ ...prev, profilePhoto: file }))
     }
   }
 
@@ -110,6 +102,28 @@ export default function JoinForm({ isOpen, onClose, onAddStudent }: JoinFormProp
     e.preventDefault()
     if (validateForm()) {
       try {
+        let profileImageUrl = undefined
+        
+        // Upload image to Supabase Storage if provided
+        if (formData.profilePhoto && supabase) {
+          const fileExt = formData.profilePhoto.name.split('.').pop()
+          const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`
+          
+          const { data: uploadData, error: uploadError } = await supabase.storage
+            .from('profile-images')
+            .upload(fileName, formData.profilePhoto)
+          
+          if (uploadError) {
+            console.error('Error uploading image:', uploadError)
+          } else {
+            // Get public URL
+            const { data: { publicUrl } } = supabase.storage
+              .from('profile-images')
+              .getPublicUrl(fileName)
+            profileImageUrl = publicUrl
+          }
+        }
+        
         // Create new student object for Supabase
         const newStudent = {
           name: formData.name,
@@ -122,7 +136,7 @@ export default function JoinForm({ isOpen, onClose, onAddStudent }: JoinFormProp
           personal_site: formData.personalSite,
           x_url: formData.xUrl,
           linkedin_url: formData.linkedinUrl,
-          profile_image: formData.profileImageBase64 || undefined
+          profile_image_url: profileImageUrl
         }
                 
         if (!supabase) {
@@ -154,7 +168,7 @@ export default function JoinForm({ isOpen, onClose, onAddStudent }: JoinFormProp
           personalSite: formData.personalSite,
           xUrl: formData.xUrl,
           linkedinUrl: formData.linkedinUrl,
-          profileImage: formData.profileImageBase64 || undefined
+          profileImage: profileImageUrl
         })
         
         // Close modal and reset form
@@ -170,7 +184,6 @@ export default function JoinForm({ isOpen, onClose, onAddStudent }: JoinFormProp
           xUrl: '',
           linkedinUrl: '',
           profilePhoto: null,
-          profileImageBase64: undefined
         })
         setErrors({})
       } catch (error) {
