@@ -51,8 +51,9 @@ export default function Home() {
       try {
         const { data, error } = await supabase
           .from('students')
-          .select('*')
+          .select('name, site, skill, secondary_skills, header, description, grad_year, linkedin_url, x_url, personal_site, profile_image_url')
           .order('created_at', { ascending: false })
+          .limit(50);
                 
         if (error) {
           console.error('Error loading students:', error)
@@ -72,7 +73,7 @@ export default function Home() {
             linkedinUrl: student.linkedin_url,
             xUrl: student.x_url,
             personalSite: student.personal_site,
-            profileImage: student.profile_image
+            profileImage: student.profile_image_url || ''
           }))
           
           setStudentsList(transformedStudents)
