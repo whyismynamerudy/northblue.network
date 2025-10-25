@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { supabase } from '../../lib/supabase'
+// import { supabase } from '../../lib/supabase'
 
 interface JoinFormProps {
   isOpen: boolean
@@ -103,24 +103,18 @@ export default function JoinForm({ isOpen, onClose, onAddStudent }: JoinFormProp
     if (validateForm()) {
       try {
         let profileImageUrl = undefined
-        
-        // Upload image to Supabase Storage if provided
-        if (formData.profilePhoto && supabase) {
-          const fileExt = formData.profilePhoto.name.split('.').pop()
-          const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`
-          
-          const { data: uploadData, error: uploadError } = await supabase.storage
-            .from('profile-images')
-            .upload(fileName, formData.profilePhoto)
-          
-          if (uploadError) {
-            console.error('Error uploading image:', uploadError)
+        if (formData.profilePhoto) {
+          const uploadForm = new FormData()
+          uploadForm.append('file', formData.profilePhoto)
+          const uploadRes = await fetch('/api/upload', {
+            method: 'POST',
+            body: uploadForm
+          })
+          if (!uploadRes.ok) {
+            console.error('Error uploading image:', await uploadRes.text())
           } else {
-            // Get public URL
-            const { data: { publicUrl } } = supabase.storage
-              .from('profile-images')
-              .getPublicUrl(fileName)
-            profileImageUrl = publicUrl
+            const json = await uploadRes.json()
+            profileImageUrl = json.publicUrl
           }
         }
         
@@ -139,20 +133,14 @@ export default function JoinForm({ isOpen, onClose, onAddStudent }: JoinFormProp
           profile_image_url: profileImageUrl
         }
                 
-        if (!supabase) {
-          console.error('Supabase not configured')
-          alert('Database not configured. Please check your environment variables.')
-          return
-        }
-        
-        // Insert into Supabase
-        const { data, error } = await supabase
-          .from('students')
-          .insert([newStudent])
-          .select()
-        
-        if (error) {
-          console.error('Error adding student:', error)
+        // Insert via API
+        const res = await fetch('/api/students', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(newStudent)
+        })
+        if (!res.ok) {
+          console.error('Error adding student:', await res.text())
           alert('Error adding student. Please try again.')
           return
         }
