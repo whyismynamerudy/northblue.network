@@ -51,6 +51,7 @@ export default function JoinForm({ isOpen, onClose, onAddStudent }: JoinFormProp
   })
 
   const [errors, setErrors] = useState<FormErrors>({})
+  const [isDragging, setIsDragging] = useState(false)
 
   const handleInputChange = (field: keyof FormData, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }))
@@ -73,6 +74,35 @@ export default function JoinForm({ isOpen, onClose, onAddStudent }: JoinFormProp
     const file = event.target.files?.[0]
     if (file) {
       setFormData(prev => ({ ...prev, profilePhoto: file }))
+    }
+  }
+
+  const handleDragOver = (event: React.DragEvent<HTMLDivElement>) => {
+    event.preventDefault()
+    event.stopPropagation()
+    if (!isDragging) setIsDragging(true)
+  }
+
+  const handleDragLeave = (event: React.DragEvent<HTMLDivElement>) => {
+    event.preventDefault()
+    event.stopPropagation()
+    setIsDragging(false)
+  }
+
+  const handleDrop = (event: React.DragEvent<HTMLDivElement>) => {
+    event.preventDefault()
+    event.stopPropagation()
+    setIsDragging(false)
+    const file = event.dataTransfer?.files?.[0]
+    if (file) {
+      if (!file.type.startsWith('image/')) {
+        setErrors(prev => ({ ...prev, profilePhoto: 'Please upload an image file' }))
+        return
+      }
+      setFormData(prev => ({ ...prev, profilePhoto: file }))
+      if (errors.profilePhoto) {
+        setErrors(prev => ({ ...prev, profilePhoto: '' }))
+      }
     }
   }
 
@@ -397,7 +427,15 @@ export default function JoinForm({ isOpen, onClose, onAddStudent }: JoinFormProp
             <label className="block text-lg font-light text-white mb-3">
               Profile Photo *
             </label>
-            <div className="border-2 border-dashed border-gray-600 rounded-lg p-6 text-center hover:border-gray-500 transition-colors">
+            <div
+              className={`border-2 border-dashed rounded-lg p-6 text-center transition-colors ${
+                isDragging ? 'border-gray-400 bg-black/20' : 'border-gray-600 hover:border-gray-500'
+              }`}
+              onDragOver={handleDragOver}
+              onDragEnter={handleDragOver}
+              onDragLeave={handleDragLeave}
+              onDrop={handleDrop}
+            >
               <input
                 type="file"
                 accept="image/*"
