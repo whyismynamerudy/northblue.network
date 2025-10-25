@@ -1,7 +1,6 @@
 'use client'
 
 import { useState } from 'react'
-import { supabase } from '../../lib/supabase'
 
 interface JoinFormProps {
   isOpen: boolean
@@ -103,24 +102,18 @@ export default function JoinForm({ isOpen, onClose, onAddStudent }: JoinFormProp
     if (validateForm()) {
       try {
         let profileImageUrl = undefined
-        
-        // Upload image to Supabase Storage if provided
-        if (formData.profilePhoto && supabase) {
-          const fileExt = formData.profilePhoto.name.split('.').pop()
-          const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`
-          
-          const { data: uploadData, error: uploadError } = await supabase.storage
-            .from('profile-images')
-            .upload(fileName, formData.profilePhoto)
-          
-          if (uploadError) {
-            console.error('Error uploading image:', uploadError)
+        if (formData.profilePhoto) {
+          const uploadForm = new FormData()
+          uploadForm.append('file', formData.profilePhoto)
+          const uploadRes = await fetch('/api/upload', {
+            method: 'POST',
+            body: uploadForm
+          })
+          if (!uploadRes.ok) {
+            console.error('Error uploading image:', await uploadRes.text())
           } else {
-            // Get public URL
-            const { data: { publicUrl } } = supabase.storage
-              .from('profile-images')
-              .getPublicUrl(fileName)
-            profileImageUrl = publicUrl
+            const json = await uploadRes.json()
+            profileImageUrl = json.publicUrl
           }
         }
         
@@ -139,21 +132,37 @@ export default function JoinForm({ isOpen, onClose, onAddStudent }: JoinFormProp
           profile_image_url: profileImageUrl
         }
                 
-        if (!supabase) {
-          console.error('Supabase not configured')
-          alert('Database not configured. Please check your environment variables.')
-          return
-        }
-        
-        // Insert into Supabase
-        const { data, error } = await supabase
-          .from('students')
-          .insert([newStudent])
-          .select()
-        
-        if (error) {
-          console.error('Error adding student:', error)
-          alert('Error adding student. Please try again.')
+        // Insert via API
+        const res = await fetch('/api/students', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(newStudent)
+        })
+        if (!res.ok) {
+          let errorText = 'Error adding student. Please try again.'
+          try {
+            const json = await res.json()
+            errorText = json?.error || errorText
+          } catch (e) {
+            try {
+              errorText = await res.text()
+            } catch (_) {}
+          }
+
+          if (res.status === 409) {
+            const newErrors: FormErrors = { ...errors }
+            if (/LinkedIn/i.test(errorText)) {
+              newErrors.linkedinUrl = errorText
+            } else if (/personal site/i.test(errorText)) {
+              newErrors.personalSite = errorText
+            } else {
+              newErrors.name = errorText
+            }
+            setErrors(newErrors)
+            return
+          }
+
+          setErrors(prev => ({ ...prev, name: errorText }))
           return
         }
         
@@ -188,7 +197,7 @@ export default function JoinForm({ isOpen, onClose, onAddStudent }: JoinFormProp
         setErrors({})
       } catch (error) {
         console.error('Error:', error)
-        alert('Error adding student. Please try again.')
+        setErrors(prev => ({ ...prev, name: 'Error adding student. Please try again.' }))
       }
     }
   }
@@ -343,9 +352,12 @@ export default function JoinForm({ isOpen, onClose, onAddStudent }: JoinFormProp
               type="url"
               value={formData.personalSite}
               onChange={(e) => handleInputChange('personalSite', e.target.value)}
-              className="w-full px-2 py-1 bg-transparent border border-gray-800 rounded-md text-white placeholder-gray-700 focus:outline-none text-base"
+              className={`w-full px-2 py-1 bg-transparent border rounded-md text-white placeholder-gray-700 focus:outline-none text-base ${
+                errors.personalSite ? 'border-red-500' : 'border-gray-800'
+              }`}
               placeholder="https://www.joshuawolk.com/"
             />
+            {errors.personalSite && <p className="text-red-400 text-sm mt-1">{errors.personalSite}</p>}
           </div>
 
           {/* X URL */}
@@ -371,9 +383,12 @@ export default function JoinForm({ isOpen, onClose, onAddStudent }: JoinFormProp
               type="url"
               value={formData.linkedinUrl}
               onChange={(e) => handleInputChange('linkedinUrl', e.target.value)}
-              className="w-full px-2 py-1 bg-transparent border border-gray-800 rounded-md text-white placeholder-gray-700 focus:outline-none text-base"
+              className={`w-full px-2 py-1 bg-transparent border rounded-md text-white placeholder-gray-700 focus:outline-none text-base ${
+                errors.linkedinUrl ? 'border-red-500' : 'border-gray-800'
+              }`}
               placeholder="https://www.linkedin.com/in/joshgwolk/"
             />
+            {errors.linkedinUrl && <p className="text-red-400 text-sm mt-1">{errors.linkedinUrl}</p>}
           </div>
 
 

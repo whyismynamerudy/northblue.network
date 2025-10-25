@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { supabase } from '../lib/supabase'
 import Header from './components/Header'
 import JoinForm from './components/JoinForm'
 import ProfileCard from './components/ProfileCard'
@@ -40,52 +39,37 @@ export default function Home() {
   const [selectedSkills, setSelectedSkills] = useState<string[]>([])
   const [selectedYears, setSelectedYears] = useState<string[]>([])
 
-  // Load students from Supabase on component mount
+  // Load students from API on component mount
   useEffect(() => {
     const loadStudents = async () => {
-      if (!supabase) {
-        console.log('Supabase not configured, skipping data load')
-        return
-      }
-      
       try {
-        const { data, error } = await supabase
-          .from('students')
-          .select('name, site, skill, secondary_skills, header, description, grad_year, linkedin_url, x_url, personal_site, profile_image_url')
-          .order('created_at', { ascending: false })
-          .limit(50);
-                
-        if (error) {
-          console.error('Error loading students:', error)
+        const res = await fetch('/api/students', { cache: 'no-store' })
+        if (!res.ok) {
+          console.error('Error loading students:', await res.text())
           return
         }
-        
-        if (data && data.length > 0) {
-          // Transform Supabase data to match our interface
-          const transformedStudents = data.map(student => ({
-            name: student.name,
-            site: student.site,
-            skill: student.skill,
-            secondarySkills: student.secondary_skills || [],
-            header: student.header || '',
-            description: student.description || '',
-            gradYear: student.grad_year || '',
-            linkedinUrl: student.linkedin_url,
-            xUrl: student.x_url,
-            personalSite: student.personal_site,
-            profileImage: student.profile_image_url || ''
-          }))
-          
-          setStudentsList(transformedStudents)
-          setFilteredStudents(transformedStudents)
-        } else {
-          console.log('No students found in database')
-        }
+        const json = await res.json()
+        const data = json.data || []
+        const transformedStudents = data.map((student: any) => ({
+          name: student.name,
+          site: student.site,
+          skill: student.skill,
+          secondarySkills: student.secondary_skills || [],
+          header: student.header || '',
+          description: student.description || '',
+          gradYear: student.grad_year || '',
+          linkedinUrl: student.linkedin_url,
+          xUrl: student.x_url,
+          personalSite: student.personal_site,
+          profileImage: student.profile_image_url || ''
+        }))
+        setStudentsList(transformedStudents)
+        setFilteredStudents(transformedStudents)
       } catch (error) {
         console.error('Error:', error)
       }
     }
-    
+
     loadStudents()
   }, [])
 
