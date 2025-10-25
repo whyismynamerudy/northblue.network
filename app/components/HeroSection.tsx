@@ -7,21 +7,23 @@ export default function HeroSection({ isLoading = false }: HeroSectionProps) {
     <div className="h-screen px-6 py-8 text-center flex flex-col justify-center">      
       <div className="text-center max-w-2xl mx-auto">
       <div className="text-xs text-gray-400 mb-4 font-mono-subtitle">
-        By <a href="https://x.com/maya_l39" target="_blank" rel="noopener noreferrer" className="underline">Maya Lekhi</a>. Inspired by <a href="https://x.com/joshuawolk" target="_blank" rel="noopener noreferrer" className="underline">Josh Wolk</a>.
+        By <a href="https://x.com/wimnr9745" target="_blank" rel="noopener noreferrer" className="underline">Rudraksh Monga</a> & <a href="https://www.linkedin.com/in/karlmichaud/" target="_blank" rel="noopener noreferrer" className="underline">Karl-Alexandre Michaud</a>. 
+        <br/>
+        Inspired by <a href="https://x.com/maya_l39" target="_blank" rel="noopener noreferrer" className="underline">Maya Lekhi</a>.
       </div>
 
         <h1 className="text-6xl font-editorial mb-6 tracking-tight text-white">
-          MUSTANGS
+          North Blue
         </h1>
         
         <div className="text-lg text-white mb-8">
-          ⌘ + u for a random mustang site
+          ⌘ + u for a random North Blue site
         </div>
         
         <p className="text-lg text-white opacity-60 leading-relaxed mb-12">
-        Meet the builders, creators, and dreamers of Western University. 
+        Meet the builders, creators, and dreamers of the University of Toronto. 
         These talented students and alumni are defining the next generation of leadership and creative excellence.
-        Welcome to the Mustangs Network.
+        Welcome to the North Blue Network.
         </p>
         
         <div className="flex flex-col items-center">
