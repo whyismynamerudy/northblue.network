@@ -419,6 +419,9 @@ export default function JoinForm({ isOpen, onClose, onAddStudent }: JoinFormProp
           </div>
 
           {/* Submit Button */}
+          {Object.values(errors).some(Boolean) && (
+            <p className="text-red-400 text-sm -mt-2 mb-1 text-center">Field(s) incorrectly filled</p>
+          )}
           <button
             type="submit"
             className="w-full bg-black text-white hover:text-gray-600 font-medium py-2 px-3 rounded-full transition-colors flex items-center justify-center text-base"
