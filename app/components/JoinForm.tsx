@@ -139,8 +139,30 @@ export default function JoinForm({ isOpen, onClose, onAddStudent }: JoinFormProp
           body: JSON.stringify(newStudent)
         })
         if (!res.ok) {
-          console.error('Error adding student:', await res.text())
-          alert('Error adding student. Please try again.')
+          let errorText = 'Error adding student. Please try again.'
+          try {
+            const json = await res.json()
+            errorText = json?.error || errorText
+          } catch (e) {
+            try {
+              errorText = await res.text()
+            } catch (_) {}
+          }
+
+          if (res.status === 409) {
+            const newErrors: FormErrors = { ...errors }
+            if (/LinkedIn/i.test(errorText)) {
+              newErrors.linkedinUrl = errorText
+            } else if (/personal site/i.test(errorText)) {
+              newErrors.personalSite = errorText
+            } else {
+              newErrors.name = errorText
+            }
+            setErrors(newErrors)
+            return
+          }
+
+          setErrors(prev => ({ ...prev, name: errorText }))
           return
         }
         
@@ -175,7 +197,7 @@ export default function JoinForm({ isOpen, onClose, onAddStudent }: JoinFormProp
         setErrors({})
       } catch (error) {
         console.error('Error:', error)
-        alert('Error adding student. Please try again.')
+        setErrors(prev => ({ ...prev, name: 'Error adding student. Please try again.' }))
       }
     }
   }
@@ -330,9 +352,12 @@ export default function JoinForm({ isOpen, onClose, onAddStudent }: JoinFormProp
               type="url"
               value={formData.personalSite}
               onChange={(e) => handleInputChange('personalSite', e.target.value)}
-              className="w-full px-2 py-1 bg-transparent border border-gray-800 rounded-md text-white placeholder-gray-700 focus:outline-none text-base"
+              className={`w-full px-2 py-1 bg-transparent border rounded-md text-white placeholder-gray-700 focus:outline-none text-base ${
+                errors.personalSite ? 'border-red-500' : 'border-gray-800'
+              }`}
               placeholder="https://www.joshuawolk.com/"
             />
+            {errors.personalSite && <p className="text-red-400 text-sm mt-1">{errors.personalSite}</p>}
           </div>
 
           {/* X URL */}
@@ -358,9 +383,12 @@ export default function JoinForm({ isOpen, onClose, onAddStudent }: JoinFormProp
               type="url"
               value={formData.linkedinUrl}
               onChange={(e) => handleInputChange('linkedinUrl', e.target.value)}
-              className="w-full px-2 py-1 bg-transparent border border-gray-800 rounded-md text-white placeholder-gray-700 focus:outline-none text-base"
+              className={`w-full px-2 py-1 bg-transparent border rounded-md text-white placeholder-gray-700 focus:outline-none text-base ${
+                errors.linkedinUrl ? 'border-red-500' : 'border-gray-800'
+              }`}
               placeholder="https://www.linkedin.com/in/joshgwolk/"
             />
+            {errors.linkedinUrl && <p className="text-red-400 text-sm mt-1">{errors.linkedinUrl}</p>}
           </div>
 
 

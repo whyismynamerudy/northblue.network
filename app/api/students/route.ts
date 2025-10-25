@@ -47,6 +47,49 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
     }
 
+    // Duplicate guard: check by name, then LinkedIn, then site
+    const normalizedName = (newStudent.name || '').trim()
+    const normalizedLinkedIn = (newStudent.linkedin_url || '').trim().replace(/\/+$/,'').toLowerCase()
+    const normalizedSite = (newStudent.site || '').trim().replace(/^https?:\/\//, '').replace(/^www\./, '').toLowerCase()
+
+    // Name exact match (case-insensitive)
+    const { data: dupByName, error: dupNameErr } = await supabase
+      .from('students')
+      .select('id')
+      .ilike('name', normalizedName)
+      .limit(1)
+
+    if (dupNameErr) return NextResponse.json({ error: dupNameErr.message }, { status: 400 })
+    if (dupByName && dupByName.length > 0) {
+      return NextResponse.json({ error: 'A student with this name already exists.' }, { status: 409 })
+    }
+
+    // LinkedIn URL exact (case-insensitive) match if provided
+    if (normalizedLinkedIn) {
+      const { data: dupByLinkedIn, error: dupLinkedInErr } = await supabase
+        .from('students')
+        .select('id')
+        .ilike('linkedin_url', normalizedLinkedIn)
+        .limit(1)
+      if (dupLinkedInErr) return NextResponse.json({ error: dupLinkedInErr.message }, { status: 400 })
+      if (dupByLinkedIn && dupByLinkedIn.length > 0) {
+        return NextResponse.json({ error: 'A student with this LinkedIn URL already exists.' }, { status: 409 })
+      }
+    }
+
+    // Personal site/domain exact (case-insensitive) match if provided
+    if (normalizedSite) {
+      const { data: dupBySite, error: dupSiteErr } = await supabase
+        .from('students')
+        .select('id')
+        .ilike('site', normalizedSite)
+        .limit(1)
+      if (dupSiteErr) return NextResponse.json({ error: dupSiteErr.message }, { status: 400 })
+      if (dupBySite && dupBySite.length > 0) {
+        return NextResponse.json({ error: 'A student with this personal site already exists.' }, { status: 409 })
+      }
+    }
+
     const { data, error } = await supabase
       .from('students')
       .insert([newStudent])
