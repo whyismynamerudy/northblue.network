@@ -9,44 +9,63 @@ const ibmPlexMono = IBM_Plex_Mono({
 })
 
 export const metadata: Metadata = {
-  title: 'Explore Mustangs',
-  description: 'Meet Western University top students and alumni in tech.',
+  title: 'North Blue Network',
+  description: 'Meet the builders, creators, and dreamers of the University of Toronto.',
   keywords: [
-    'Western University',
-    'UWO',
+    'University of Toronto',
+    'U of T',
+    'North Blue',
+    'Toronto',
     'tech network',
     'students',
     'alumni',
     'developers',
     'designers',
     'entrepreneurs',
-    'London Ontario',
-    'university network',
-    'Maya Lekhi'
+    'Canada',
+    'UTSG',
+    'UTM',
+    'UTSC',
+    'St. George',
+    'University of Toronto St. George',
+    'University of Toronto Scarborough',
+    'University of Toronto Mississauga',
+    'UofT students',
+    'UofT alumni',
+    'UofT engineering',
+    'UofT computer science',
+    'Rotman',
+    'Rotman School of Management',
+    'UofT network',
+    'North Blue Network',
+    'university network'
   ],
-  authors: [{ name: 'Explore Mustangs' }],
-  creator: 'Explore Mustangs',
-  publisher: 'Explore Mustangs',
+  authors: [
+    { name: 'Rudraksh Monga', url: 'https://x.com/wimnr9745' },
+    { name: 'Karl-Alexandre Michaud', url: 'https://www.linkedin.com/in/karlmichaud/' }
+  ],
+  creator: 'Rudraksh Monga & Karl-Alexandre Michaud',
+  publisher: 'Rudraksh Monga & Karl-Alexandre Michaud',
   formatDetection: {
     email: false,
     address: false,
     telephone: false,
   },
-  metadataBase: new URL('https://mustangs.network'),
+  metadataBase: new URL('https://northblue.network'),
   alternates: {
     canonical: '/',
   },
   openGraph: {
-    title: 'Explore Mustangs',
-    description: 'Meet Western University top students and alumni in tech.',
-    url: 'https://mustangs.network',
-    siteName: 'Explore Mustangs',
+    title: 'North Blue Network',
+    description: 'Meet the builders, creators, and dreamers of the University of Toronto.',
+    url: 'https://northblue.network',
+    siteName: 'North Blue Network',
     images: [
       {
-        url: '/og-image.png',
+        url: '/twitter-image.png',
         width: 1200,
         height: 630,
-        alt: 'Explore Mustangs',
+        alt: 'North Blue Network',
       },
     ],
     locale: 'en_US',
@@ -54,11 +73,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Explore Mustangs',
-    description: 'Meet Western University top students and alumni in tech.',
+    title: 'North Blue Network',
+    description: 'Meet the builders, creators, and dreamers of the University of Toronto.',
     images: ['/twitter-image.png'],
-    creator: '@maya_l39',
-    site: '@maya_l39',
   },
   robots: {
     index: true,
@@ -71,14 +88,10 @@ export const metadata: Metadata = {
       'max-snippet': -1,
     },
   },
-  verification: {
-    google: 'G-JX0C097Y1K',
-  },
   icons: {
-    icon: '/favicon.ico',
-    shortcut: '/favicon-32x32.png',
+    icon: '/favicon.png',
+    shortcut: ['/favicon.png'],
   },
-  manifest: '/site.webmanifest',
   category: 'technology',
 }
 
