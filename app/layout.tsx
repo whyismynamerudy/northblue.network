@@ -41,7 +41,7 @@ export const metadata: Metadata = {
     'university network'
   ],
   authors: [
-    { name: 'Rudraksh Monga', url: 'https://x.com/wimnr9745' },
+    { name: 'Rudraksh Monga', url: 'https://www.linkedin.com/in/rudraksh-monga/' },
     { name: 'Karl-Alexandre Michaud', url: 'https://www.linkedin.com/in/karlmichaud/' }
   ],
   creator: 'Rudraksh Monga & Karl-Alexandre Michaud',

@@ -7,7 +7,7 @@ export default function HeroSection({ isLoading = false }: HeroSectionProps) {
     <div className="h-screen px-6 py-8 text-center flex flex-col justify-center">      
       <div className="text-center max-w-2xl mx-auto">
       <div className="text-xs text-gray-400 mb-4 font-mono-subtitle">
-        By <a href="https://x.com/wimnr9745" target="_blank" rel="noopener noreferrer" className="underline">Rudraksh Monga</a> & <a href="https://www.linkedin.com/in/karlmichaud/" target="_blank" rel="noopener noreferrer" className="underline">Karl-Alexandre Michaud</a>. 
+        By <a href="https://www.linkedin.com/in/rudraksh-monga/" target="_blank" rel="noopener noreferrer" className="underline">Rudraksh Monga</a> & <a href="https://www.linkedin.com/in/karlmichaud/" target="_blank" rel="noopener noreferrer" className="underline">Karl-Alexandre Michaud</a>. 
         <br/>
         Inspired by <a href="https://x.com/maya_l39" target="_blank" rel="noopener noreferrer" className="underline">Maya Lekhi</a>.
       </div>
