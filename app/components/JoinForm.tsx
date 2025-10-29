@@ -34,7 +34,7 @@ interface FormErrors {
   profilePhoto?: string
 }
 
-const skills = ['Product', 'Fullstack', 'Frontend', 'Backend', 'Mobile', 'Design', 'Art', 'Marketing', 'Venture', 'Hardware']
+const skills = ['Product', 'AI/ML', 'Fullstack', 'Frontend', 'Backend', 'Mobile', 'Systems', 'UI/UX', 'Marketing', 'Venture', 'Hardware']
 
 export default function JoinForm({ isOpen, onClose, onAddStudent }: JoinFormProps) {
   const [formData, setFormData] = useState<FormData>({

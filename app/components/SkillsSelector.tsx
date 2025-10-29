@@ -11,8 +11,8 @@ interface SkillsSelectorProps {
 }
 
 const skills = [
-  'Design', 'Frontend', 'Backend', 'Product', 'Fullstack', 
-  'Mobile', 'Hardware', 'Marketing', 'Venture', 'Art'
+  'Product', 'AI/ML', 'Fullstack', 'Frontend', 'Backend', 
+  'Mobile', 'Systems', 'UI/UX', 'Marketing', 'Venture', 'Hardware'
 ]
 
 export default function SkillsSelector({

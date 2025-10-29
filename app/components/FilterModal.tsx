@@ -9,7 +9,7 @@ interface FilterModalProps {
   onYearToggle: (year: string) => void
 }
 
-const skills = ['Frontend', 'Backend', 'Fullstack', 'Product', 'Marketing', 'Design', 'Venture', 'Mobile']
+const skills = ['Product', 'AI/ML', 'Fullstack', 'Frontend', 'Backend', 'Mobile', 'Systems', 'UI/UX', 'Marketing', 'Venture', 'Hardware']
 const years = ['2020', '2021', '2022', '2023', '2024', '2025', '2026', '2027', '2028', '2029', '2030']
 
 export default function FilterModal({ 
