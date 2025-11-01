@@ -54,6 +54,7 @@ export default function JoinForm({ isOpen, onClose, onAddStudent }: JoinFormProp
   const [errors, setErrors] = useState<FormErrors>({})
   const [isDragging, setIsDragging] = useState(false)
   const [isGeneratingEmbedding, setIsGeneratingEmbedding] = useState(false)
+  const [showScrollIndicator, setShowScrollIndicator] = useState(false)
 
   // Handle escape key to close modal
   useEffect(() => {
@@ -65,6 +66,32 @@ export default function JoinForm({ isOpen, onClose, onAddStudent }: JoinFormProp
     window.addEventListener('keydown', handleEscape)
     return () => window.removeEventListener('keydown', handleEscape)
   }, [isOpen, onClose, isGeneratingEmbedding])
+
+  // Check if content is scrollable and update indicator
+  useEffect(() => {
+    if (!isOpen) return
+
+    const checkScroll = () => {
+      const container = document.querySelector('.modal-scroll-container')
+      if (container) {
+        const hasScroll = container.scrollHeight > container.clientHeight
+        const isAtBottom = container.scrollHeight - container.scrollTop <= container.clientHeight + 10
+        setShowScrollIndicator(hasScroll && !isAtBottom)
+      }
+    }
+
+    // Check initially and on scroll
+    setTimeout(checkScroll, 100) // Small delay to ensure content is rendered
+    
+    const container = document.querySelector('.modal-scroll-container')
+    container?.addEventListener('scroll', checkScroll)
+    window.addEventListener('resize', checkScroll)
+
+    return () => {
+      container?.removeEventListener('scroll', checkScroll)
+      window.removeEventListener('resize', checkScroll)
+    }
+  }, [isOpen, formData])
 
   const handleInputChange = (field: keyof FormData, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }))
@@ -298,7 +325,19 @@ export default function JoinForm({ isOpen, onClose, onAddStudent }: JoinFormProp
       />
       
       {/* Modal centered */}
-      <div className="relative w-full max-w-3xl mx-4 max-h-[85vh] overflow-y-auto">
+      <style>{`
+        .modal-scroll-container::-webkit-scrollbar {
+          display: none;
+        }
+      `}</style>
+      <div className="relative">
+        <div 
+          className="modal-scroll-container relative w-full max-w-3xl mx-4 max-h-[85vh] overflow-y-auto"
+          style={{
+            scrollbarWidth: 'none',
+            msOverflowStyle: 'none'
+          }}
+        >
         <div className="bg-black/90 backdrop-blur-xl rounded-2xl border border-gray-800 shadow-2xl p-8">
           {/* Header */}
           <div className="flex items-center justify-between mb-8">
@@ -541,7 +580,7 @@ export default function JoinForm({ isOpen, onClose, onAddStudent }: JoinFormProp
               disabled={isGeneratingEmbedding}
               className="w-full bg-white text-black hover:bg-gray-200 font-medium py-4 px-6 rounded-xl transition-colors flex items-center justify-center text-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white"
             >
-              Submit Application
+              Submit
               <svg className="ml-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
               </svg>
@@ -549,6 +588,20 @@ export default function JoinForm({ isOpen, onClose, onAddStudent }: JoinFormProp
           </div>
         </form>
         </div>
+        </div>
+        
+        {/* Scroll Indicator */}
+        {showScrollIndicator && (
+          <div className="absolute bottom-0 left-0 right-0 pointer-events-none flex justify-center pb-4">
+            <div className="bg-gradient-to-t from-black/90 via-black/60 to-transparent w-full h-32 absolute bottom-0"></div>
+            <div className="relative z-10 flex flex-col items-center animate-bounce">
+              <svg className="w-6 h-6 text-white/80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+              </svg>
+              <span className="text-white/60 text-xs mt-1">Scroll for more</span>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   )
