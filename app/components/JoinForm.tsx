@@ -127,11 +127,11 @@ export default function JoinForm({ isOpen, onClose, onAddStudent }: JoinFormProp
     if (!formData.gradYear.trim()) newErrors.gradYear = 'Please enter a value'
     if (!formData.profilePhoto || formData.profilePhoto === null) newErrors.profilePhoto = 'Please upload a file'
     
-    // Check word count for description (45 words max)
+    // Check character count for description (350 characters max)
     if (formData.description.trim()) {
-      const wordCount = formData.description.trim().split(/\s+/).filter(word => word.length > 0).length
-      if (wordCount > 45) {
-        newErrors.description = `Description must be <45 words (currently ${wordCount} words)`
+      const charCount = formData.description.trim().length
+      if (charCount > 350) {
+        newErrors.description = `Description must be ≤350 characters (currently ${charCount})`
       }
     }
 
@@ -376,13 +376,10 @@ export default function JoinForm({ isOpen, onClose, onAddStudent }: JoinFormProp
                 Description
               </label>
               <span className={`text-sm ${(() => {
-                const wordCount = formData.description.trim().split(/\s+/).filter(word => word.length > 0).length
-                return wordCount > 45 ? 'text-red-400' : 'text-gray-400'
+                const charCount = formData.description.trim().length
+                return charCount > 350 ? 'text-red-400' : 'text-gray-400'
               })()}`}>
-                {(() => {
-                  const wordCount = formData.description.trim().split(/\s+/).filter(word => word.length > 0).length
-                  return `${wordCount}/45 words`
-                })()}
+                {formData.description.trim().length}/350 characters
               </span>
             </div>
             <textarea
