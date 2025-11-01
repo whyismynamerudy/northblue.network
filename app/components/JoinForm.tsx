@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { generateEmbedding, studentToSearchText } from '@/lib/embeddings-worker'
 
 interface JoinFormProps {
   isOpen: boolean
@@ -52,6 +53,7 @@ export default function JoinForm({ isOpen, onClose, onAddStudent }: JoinFormProp
 
   const [errors, setErrors] = useState<FormErrors>({})
   const [isDragging, setIsDragging] = useState(false)
+  const [isGeneratingEmbedding, setIsGeneratingEmbedding] = useState(false)
 
   const handleInputChange = (field: keyof FormData, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }))
@@ -68,7 +70,6 @@ export default function JoinForm({ isOpen, onClose, onAddStudent }: JoinFormProp
         : [...prev.secondarySkills, skill]
     }))
   }
-
 
   const handlePhotoChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
@@ -131,6 +132,7 @@ export default function JoinForm({ isOpen, onClose, onAddStudent }: JoinFormProp
     e.preventDefault()
     if (validateForm()) {
       try {
+        // Step 1: Upload profile photo
         let profileImageUrl = undefined
         if (formData.profilePhoto) {
           const uploadForm = new FormData()
@@ -147,7 +149,7 @@ export default function JoinForm({ isOpen, onClose, onAddStudent }: JoinFormProp
           }
         }
         
-        // Create new student object for Supabase
+        // Step 2: Create new student object for Supabase
         const newStudent = {
           name: formData.name,
           site: formData.personalSite.replace(/^https?:\/\//, '').replace(/^www\./, ''),
@@ -162,12 +164,13 @@ export default function JoinForm({ isOpen, onClose, onAddStudent }: JoinFormProp
           profile_image_url: profileImageUrl
         }
                 
-        // Insert via API
+        // Step 3: Insert student into database
         const res = await fetch('/api/students', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(newStudent)
         })
+        
         if (!res.ok) {
           let errorText = 'Error adding student. Please try again.'
           try {
@@ -195,8 +198,49 @@ export default function JoinForm({ isOpen, onClose, onAddStudent }: JoinFormProp
           setErrors(prev => ({ ...prev, name: errorText }))
           return
         }
+
+        const insertedStudent = await res.json()
         
-        // Add student to the local list for immediate display
+        // Step 4: Generate embedding for the new student
+        setIsGeneratingEmbedding(true)
+        try {
+          // Create searchable text from student data
+          const searchText = studentToSearchText({
+            name: formData.name,
+            skill: formData.primarySkill,
+            secondarySkills: formData.secondarySkills,
+            header: formData.header,
+            description: formData.description,
+            gradYear: formData.gradYear
+          })
+
+          // Generate the embedding vector
+          const embedding = await generateEmbedding(searchText)
+
+          // Step 5: Update the student record with the embedding
+          const embeddingRes = await fetch('/api/students/update-embedding', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              studentId: insertedStudent.data?.id,
+              embedding
+            })
+          })
+
+          if (!embeddingRes.ok) {
+            console.error('Failed to store embedding (student still added):', await embeddingRes.text())
+            // Don't fail the whole operation - embedding can be generated later
+          } else {
+            console.log('✓ Embedding generated successfully')
+          }
+        } catch (embeddingError) {
+          console.error('Failed to generate embedding (student still added):', embeddingError)
+          // Don't fail the whole operation - embedding can be generated later
+        } finally {
+          setIsGeneratingEmbedding(false)
+        }
+        
+        // Step 6: Add student to the local list for immediate display
         onAddStudent({
           name: formData.name,
           header: formData.header,
@@ -248,6 +292,7 @@ export default function JoinForm({ isOpen, onClose, onAddStudent }: JoinFormProp
           <button
             onClick={onClose}
             className="absolute top-3 right-3 text-gray-400 hover:text-white transition-colors"
+            disabled={isGeneratingEmbedding}
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -324,9 +369,9 @@ export default function JoinForm({ isOpen, onClose, onAddStudent }: JoinFormProp
             <select
               value={formData.primarySkill}
               onChange={(e) => handleInputChange('primarySkill', e.target.value)}
-                              className={`w-full px-3 py-2 bg-black border rounded-md text-white focus:outline-none focus:ring-2 ${
-                  errors.primarySkill ? 'border-red-500' : 'border-gray-800'
-                }`}
+              className={`w-full px-3 py-2 bg-black border rounded-md text-white focus:outline-none focus:ring-2 ${
+                errors.primarySkill ? 'border-red-500' : 'border-gray-800'
+              }`}
             >
               <option value="">Primary skills (pick 1)</option>
               {skills.map(skill => (
@@ -421,7 +466,6 @@ export default function JoinForm({ isOpen, onClose, onAddStudent }: JoinFormProp
             {errors.linkedinUrl && <p className="text-red-400 text-sm mt-1">{errors.linkedinUrl}</p>}
           </div>
 
-
           {/* Profile Photo */}
           <div>
             <label className="block text-lg font-light text-white mb-3">
@@ -456,13 +500,22 @@ export default function JoinForm({ isOpen, onClose, onAddStudent }: JoinFormProp
             {errors.profilePhoto && <p className="text-red-400 text-sm mt-1">{errors.profilePhoto}</p>}
           </div>
 
-          {/* Submit Button */}
+          {/* Submit Button with embedding status */}
           {Object.values(errors).some(Boolean) && (
             <p className="text-red-400 text-sm -mt-2 mb-1 text-center">Field(s) incorrectly filled</p>
           )}
+          
+          {isGeneratingEmbedding && (
+            <p className="text-blue-400 text-sm -mt-2 mb-1 text-center flex items-center justify-center">
+              <span className="w-4 h-4 border-2 border-blue-400 border-t-transparent rounded-full animate-spin mr-2"></span>
+              Generating AI search data...
+            </p>
+          )}
+          
           <button
             type="submit"
-            className="w-full bg-black text-white hover:text-gray-600 font-medium py-2 px-3 rounded-full transition-colors flex items-center justify-center text-base"
+            disabled={isGeneratingEmbedding}
+            className="w-full bg-black text-white hover:text-gray-600 font-medium py-2 px-3 rounded-full transition-colors flex items-center justify-center text-base disabled:opacity-50 disabled:cursor-not-allowed"
           >
             Submit
             <svg className="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

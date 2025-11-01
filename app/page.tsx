@@ -9,6 +9,7 @@ import SearchSidebar from './components/SearchSidebar'
 import FilterModal from './components/FilterModal'
 import HeroSection from './components/HeroSection'
 import BackgroundOverlay from './components/BackgroundOverlay'
+import SearchModal from './components/SearchModal'
 
 interface Student {
   name: string
@@ -38,6 +39,19 @@ export default function Home() {
   const [showFilterModal, setShowFilterModal] = useState(false)
   const [selectedSkills, setSelectedSkills] = useState<string[]>([])
   const [selectedYears, setSelectedYears] = useState<string[]>([])
+  const [showSearchModal, setShowSearchModal] = useState(false)
+
+  // Preload embedding model in background
+  useEffect(() => {
+    // Dynamic import to avoid loading on server
+    import('@/lib/embeddings-worker').then(({ preloadEmbeddingModel }) => {
+      preloadEmbeddingModel().then((success) => {
+        if (success) {
+          console.log('Embedding model preloaded successfully')
+        }
+      })
+    })
+  }, [])
 
   // Load students from API on component mount
   useEffect(() => {
@@ -90,12 +104,20 @@ export default function Home() {
     setFilteredStudents(filtered)
   }, [searchTerm, studentsList, selectedSkills, selectedYears])
 
+  // Command+K handler
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
+      // Command+U - Random student
       if ((event.metaKey || event.ctrlKey) && event.key === 'u') {
         event.preventDefault()
         const randomStudent = studentsList[Math.floor(Math.random() * studentsList.length)]
         window.open(`https://${randomStudent.site}`, '_blank')
+      }
+      
+      // Command+K - Open search modal
+      if ((event.metaKey || event.ctrlKey) && event.key === 'k') {
+        event.preventDefault()
+        setShowSearchModal(true)
       }
     }
 
@@ -107,16 +129,11 @@ export default function Home() {
   useEffect(() => {
     const handleScroll = () => {
       const scrollTop = window.scrollY || document.documentElement.scrollTop
-      const heroHeight = window.innerHeight // Assuming hero section is full height
-      
-      // Show sidebars when scrolled past hero section
-      setShowSidebars(scrollTop > heroHeight * 0.3) // Show when 30% past hero
+      const heroHeight = window.innerHeight
+      setShowSidebars(scrollTop > heroHeight * 0.3)
     }
 
-    // Initial check
     handleScroll()
-
-    // Add scroll listener
     window.addEventListener('scroll', handleScroll)
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
@@ -134,7 +151,6 @@ export default function Home() {
       const windowHeight = window.innerHeight
       const scrollBottom = scrollTop + windowHeight
 
-      // Find the profile that's most visible in the viewport
       let focusedCard = null
       let maxVisibleHeight = 0
       
@@ -142,12 +158,10 @@ export default function Home() {
         const cardTop = card.offsetTop
         const cardBottom = cardTop + card.offsetHeight
         
-        // Calculate how much of the card is visible
         const visibleTop = Math.max(cardTop, scrollTop)
         const visibleBottom = Math.min(cardBottom, scrollBottom)
         const visibleHeight = Math.max(0, visibleBottom - visibleTop)
         
-        // If this card is more visible than the current best, make it the focused card
         if (visibleHeight > maxVisibleHeight) {
           maxVisibleHeight = visibleHeight
           focusedCard = card
@@ -155,7 +169,6 @@ export default function Home() {
       }
 
       if (focusedCard) {
-        const studentName = focusedCard.id.replace(/-/g, ' ')
         const student = filteredStudents.find(s => 
           s.name.toLowerCase().replace(/\s+/g, '-') === focusedCard.id
         )
@@ -168,10 +181,7 @@ export default function Home() {
       }
     }
 
-    // Initial check
     handleScroll()
-
-    // Add scroll listener
     window.addEventListener('scroll', handleScroll)
     return () => window.removeEventListener('scroll', handleScroll)
   }, [filteredStudents, focusedStudent])
@@ -190,7 +200,7 @@ export default function Home() {
     const element = document.getElementById(elementId)
     if (element) {
       const elementTop = element.offsetTop
-      const offset = 100 // Scroll 100px higher than the element
+      const offset = 100
       window.scrollTo({
         top: elementTop - offset,
         behavior: 'smooth'
@@ -282,6 +292,13 @@ export default function Home() {
           selectedYears={selectedYears}
           onSkillToggle={handleSkillToggle}
           onYearToggle={handleYearToggle}
+        />
+
+        {/* Search Modal */}
+        <SearchModal
+          isOpen={showSearchModal}
+          onClose={() => setShowSearchModal(false)}
+          onStudentClick={scrollToStudent}
         />
       </div>
     </BackgroundOverlay>

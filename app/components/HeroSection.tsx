@@ -16,8 +16,9 @@ export default function HeroSection({ isLoading = false }: HeroSectionProps) {
           North Blue
         </h1>
         
-        <div className="text-lg text-white mb-8">
-          ⌘ + u for a random North Blue site
+        <div className="text-lg text-white mb-8 space-y-1">
+          <div>⌘ + u for a random North Blue site</div>
+          <div>⌘ + k to search with natural language</div>
         </div>
         
         <p className="text-lg text-white opacity-60 leading-relaxed mb-12">
