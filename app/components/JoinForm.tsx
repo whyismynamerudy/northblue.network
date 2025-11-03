@@ -16,6 +16,7 @@ interface FormData {
   primarySkill: string
   secondarySkills: string[]
   gradYear: string
+  email: string
   personalSite: string
   xUrl: string
   linkedinUrl: string
@@ -29,6 +30,7 @@ interface FormErrors {
   primarySkill?: string
   secondarySkills?: string
   gradYear?: string
+  email?: string
   personalSite?: string
   xUrl?: string
   linkedinUrl?: string
@@ -45,6 +47,7 @@ export default function JoinForm({ isOpen, onClose, onAddStudent }: JoinFormProp
     primarySkill: '',
     secondarySkills: [],
     gradYear: '',
+    email: '',
     personalSite: '',
     xUrl: '',
     linkedinUrl: '',
@@ -154,6 +157,14 @@ export default function JoinForm({ isOpen, onClose, onAddStudent }: JoinFormProp
     if (!formData.gradYear.trim()) newErrors.gradYear = 'Please enter a value'
     if (!formData.profilePhoto || formData.profilePhoto === null) newErrors.profilePhoto = 'Please upload a file'
     
+    // Optional email format validation
+    if (formData.email.trim()) {
+      const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+      if (!emailPattern.test(formData.email.trim())) {
+        newErrors.email = 'Please enter a valid email'
+      }
+    }
+    
     // Check character count for description (350 characters max)
     if (formData.description.trim()) {
       const charCount = formData.description.trim().length
@@ -196,6 +207,7 @@ export default function JoinForm({ isOpen, onClose, onAddStudent }: JoinFormProp
           header: formData.header,
           description: formData.description,
           grad_year: formData.gradYear,
+          email: formData.email,
           personal_site: formData.personalSite,
           x_url: formData.xUrl,
           linkedin_url: formData.linkedinUrl,
@@ -286,6 +298,7 @@ export default function JoinForm({ isOpen, onClose, onAddStudent }: JoinFormProp
           skill: formData.primarySkill,
           secondarySkills: formData.secondarySkills,
           gradYear: formData.gradYear,
+          email: formData.email,
           personalSite: formData.personalSite,
           xUrl: formData.xUrl,
           linkedinUrl: formData.linkedinUrl,
@@ -301,6 +314,7 @@ export default function JoinForm({ isOpen, onClose, onAddStudent }: JoinFormProp
           primarySkill: '',
           secondarySkills: [],
           gradYear: '',
+          email: '',
           personalSite: '',
           xUrl: '',
           linkedinUrl: '',
@@ -389,6 +403,23 @@ export default function JoinForm({ isOpen, onClose, onAddStudent }: JoinFormProp
               />
               {errors.gradYear && <p className="text-red-400 text-sm mt-2">{errors.gradYear}</p>}
             </div>
+          </div>
+
+          {/* Email */}
+          <div>
+            <label className="block text-lg font-light text-white mb-3">
+              Email
+            </label>
+            <input
+              type="email"
+              value={formData.email}
+              onChange={(e) => handleInputChange('email', e.target.value)}
+              className={`w-full px-4 py-3 bg-transparent border rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-gray-600 transition-colors text-base ${
+                errors.email ? 'border-red-500' : 'border-gray-700'
+              }`}
+              placeholder="you@example.com"
+            />
+            {errors.email && <p className="text-red-400 text-sm mt-2">{errors.email}</p>}
           </div>
 
           {/* Header */}

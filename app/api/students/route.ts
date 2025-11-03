@@ -37,6 +37,7 @@ export async function POST(req: NextRequest) {
       header: body.header || '',
       description: body.description || '',
       grad_year: body.grad_year || '',
+      email: body.email || null,
       personal_site: body.personal_site || null,
       x_url: body.x_url || null,
       linkedin_url: body.linkedin_url || null,
