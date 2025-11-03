@@ -1,12 +1,15 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { supabase } from '@/lib/supabase'
 import { generateEmbedding, studentToSearchText } from '@/lib/embeddings-worker'
 
 interface JoinFormProps {
   isOpen: boolean
   onClose: () => void
   onAddStudent: (student: any) => void
+  mode?: 'create' | 'edit'
+  initialData?: Partial<FormData> & { id?: string; profileImageUrl?: string }
 }
 
 interface FormData {
@@ -39,7 +42,7 @@ interface FormErrors {
 
 const skills = ['Product', 'AI/ML', 'Fullstack', 'Frontend', 'Backend', 'Mobile', 'Systems', 'UI/UX', 'Marketing', 'Venture', 'Hardware']
 
-export default function JoinForm({ isOpen, onClose, onAddStudent }: JoinFormProps) {
+export default function JoinForm({ isOpen, onClose, onAddStudent, mode = 'create', initialData }: JoinFormProps) {
   const [formData, setFormData] = useState<FormData>({
     name: '',
     header: '',
@@ -95,6 +98,26 @@ export default function JoinForm({ isOpen, onClose, onAddStudent }: JoinFormProp
       window.removeEventListener('resize', checkScroll)
     }
   }, [isOpen, formData])
+
+  // Hydrate initial values for edit mode
+  useEffect(() => {
+    if (!isOpen) return
+    if (!initialData) return
+    setFormData(prev => ({
+      ...prev,
+      name: initialData.name ?? prev.name,
+      header: initialData.header ?? prev.header,
+      description: initialData.description ?? prev.description,
+      primarySkill: initialData.primarySkill ?? prev.primarySkill,
+      secondarySkills: initialData.secondarySkills ?? prev.secondarySkills,
+      gradYear: initialData.gradYear ?? prev.gradYear,
+      email: initialData.email ?? prev.email,
+      personalSite: initialData.personalSite ?? prev.personalSite,
+      xUrl: initialData.xUrl ?? prev.xUrl,
+      linkedinUrl: initialData.linkedinUrl ?? prev.linkedinUrl,
+      profilePhoto: null,
+    }))
+  }, [isOpen, initialData])
 
   const handleInputChange = (field: keyof FormData, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }))
@@ -155,7 +178,9 @@ export default function JoinForm({ isOpen, onClose, onAddStudent }: JoinFormProp
     if (!formData.header.trim()) newErrors.header = 'Please enter a value'
     if (!formData.primarySkill) newErrors.primarySkill = 'Please select an option'
     if (!formData.gradYear.trim()) newErrors.gradYear = 'Please enter a value'
-    if (!formData.profilePhoto || formData.profilePhoto === null) newErrors.profilePhoto = 'Please upload a file'
+    if (mode === 'create') {
+      if (!formData.profilePhoto || formData.profilePhoto === null) newErrors.profilePhoto = 'Please upload a file'
+    }
     
     // Optional email format validation
     if (formData.email.trim()) {
@@ -196,6 +221,84 @@ export default function JoinForm({ isOpen, onClose, onAddStudent }: JoinFormProp
             const json = await uploadRes.json()
             profileImageUrl = json.publicUrl
           }
+        }
+        
+        // EDIT MODE: update existing record and return early
+        if (mode === 'edit') {
+          const studentId = initialData?.id
+          if (!studentId) {
+            setErrors(prev => ({ ...prev, name: 'Missing student id for edit.' }))
+            return
+          }
+
+          const sessionRes = await supabase?.auth.getSession()
+          const accessToken = sessionRes?.data.session?.access_token
+          if (!accessToken) {
+            setErrors(prev => ({ ...prev, name: 'You must be signed in to edit.' }))
+            return
+          }
+
+          const updatePayload: any = {
+            name: formData.name,
+            skill: formData.primarySkill,
+            secondary_skills: formData.secondarySkills,
+            header: formData.header,
+            description: formData.description,
+            grad_year: formData.gradYear,
+            personal_site: formData.personalSite,
+            x_url: formData.xUrl,
+            linkedin_url: formData.linkedinUrl
+          }
+          if (profileImageUrl) updatePayload.profile_image_url = profileImageUrl
+
+          const updateRes = await fetch(`/api/students/${studentId}`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${accessToken}` },
+            body: JSON.stringify(updatePayload)
+          })
+
+          if (!updateRes.ok) {
+            let errorText = 'Error updating student. Please try again.'
+            try {
+              const json = await updateRes.json()
+              errorText = json?.error || errorText
+            } catch (_) {}
+            setErrors(prev => ({ ...prev, name: errorText }))
+            return
+          }
+
+          // Regenerate embedding after update
+          setIsGeneratingEmbedding(true)
+          try {
+            const searchText = studentToSearchText({
+              name: formData.name,
+              skill: formData.primarySkill,
+              secondarySkills: formData.secondarySkills,
+              header: formData.header,
+              description: formData.description,
+              gradYear: formData.gradYear
+            })
+
+            const embedding = await generateEmbedding(searchText)
+            const embeddingRes = await fetch('/api/students/update-embedding', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ studentId, embedding })
+            })
+            if (!embeddingRes.ok) {
+              console.error('Failed to store embedding (student still updated):', await embeddingRes.text())
+            } else {
+              console.log('✓ Embedding regenerated successfully')
+            }
+          } catch (embeddingError) {
+            console.error('Failed to generate embedding (student still updated):', embeddingError)
+          } finally {
+            setIsGeneratingEmbedding(false)
+          }
+
+          onClose()
+          setErrors({})
+          return
         }
         
         // Step 2: Create new student object for Supabase

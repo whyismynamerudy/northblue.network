@@ -10,8 +10,22 @@ if (!supabaseUrl || !supabaseKey) {
 
 const supabase = createClient(supabaseUrl, supabaseKey)
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   try {
+    const { searchParams } = new URL(req.url)
+    const email = searchParams.get('email')?.trim().toLowerCase() || ''
+
+    if (email) {
+      const { data, error } = await supabase
+        .from('students')
+        .select('id, name, site, skill, secondary_skills, header, description, grad_year, linkedin_url, x_url, personal_site, profile_image_url, email')
+        .ilike('email', email)
+        .limit(1)
+
+      if (error) return NextResponse.json({ error: error.message }, { status: 400 })
+      return NextResponse.json({ data: data?.[0] || null })
+    }
+
     const { data, error } = await supabase
       .from('students')
       .select('name, site, skill, secondary_skills, header, description, grad_year, linkedin_url, x_url, personal_site, profile_image_url')
