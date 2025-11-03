@@ -1,12 +1,15 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { supabase } from '@/lib/supabase'
 import { generateEmbedding, studentToSearchText } from '@/lib/embeddings-worker'
 
 interface JoinFormProps {
   isOpen: boolean
   onClose: () => void
   onAddStudent: (student: any) => void
+  mode?: 'create' | 'edit'
+  initialData?: Partial<FormData> & { id?: string; profileImageUrl?: string }
 }
 
 interface FormData {
@@ -16,6 +19,7 @@ interface FormData {
   primarySkill: string
   secondarySkills: string[]
   gradYear: string
+  email: string
   personalSite: string
   xUrl: string
   linkedinUrl: string
@@ -29,6 +33,7 @@ interface FormErrors {
   primarySkill?: string
   secondarySkills?: string
   gradYear?: string
+  email?: string
   personalSite?: string
   xUrl?: string
   linkedinUrl?: string
@@ -37,7 +42,7 @@ interface FormErrors {
 
 const skills = ['Product', 'AI/ML', 'Fullstack', 'Frontend', 'Backend', 'Mobile', 'Systems', 'UI/UX', 'Marketing', 'Venture', 'Hardware']
 
-export default function JoinForm({ isOpen, onClose, onAddStudent }: JoinFormProps) {
+export default function JoinForm({ isOpen, onClose, onAddStudent, mode = 'create', initialData }: JoinFormProps) {
   const [formData, setFormData] = useState<FormData>({
     name: '',
     header: '',
@@ -45,6 +50,7 @@ export default function JoinForm({ isOpen, onClose, onAddStudent }: JoinFormProp
     primarySkill: '',
     secondarySkills: [],
     gradYear: '',
+    email: '',
     personalSite: '',
     xUrl: '',
     linkedinUrl: '',
@@ -92,6 +98,26 @@ export default function JoinForm({ isOpen, onClose, onAddStudent }: JoinFormProp
       window.removeEventListener('resize', checkScroll)
     }
   }, [isOpen, formData])
+
+  // Hydrate initial values for edit mode
+  useEffect(() => {
+    if (!isOpen) return
+    if (!initialData) return
+    setFormData(prev => ({
+      ...prev,
+      name: initialData.name ?? prev.name,
+      header: initialData.header ?? prev.header,
+      description: initialData.description ?? prev.description,
+      primarySkill: initialData.primarySkill ?? prev.primarySkill,
+      secondarySkills: initialData.secondarySkills ?? prev.secondarySkills,
+      gradYear: initialData.gradYear ?? prev.gradYear,
+      email: initialData.email ?? prev.email,
+      personalSite: initialData.personalSite ?? prev.personalSite,
+      xUrl: initialData.xUrl ?? prev.xUrl,
+      linkedinUrl: initialData.linkedinUrl ?? prev.linkedinUrl,
+      profilePhoto: null,
+    }))
+  }, [isOpen, initialData])
 
   const handleInputChange = (field: keyof FormData, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }))
@@ -152,7 +178,17 @@ export default function JoinForm({ isOpen, onClose, onAddStudent }: JoinFormProp
     if (!formData.header.trim()) newErrors.header = 'Please enter a value'
     if (!formData.primarySkill) newErrors.primarySkill = 'Please select an option'
     if (!formData.gradYear.trim()) newErrors.gradYear = 'Please enter a value'
-    if (!formData.profilePhoto || formData.profilePhoto === null) newErrors.profilePhoto = 'Please upload a file'
+    if (mode === 'create') {
+      if (!formData.profilePhoto || formData.profilePhoto === null) newErrors.profilePhoto = 'Please upload a file'
+    }
+    
+    // Optional email format validation
+    if (formData.email.trim()) {
+      const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+      if (!emailPattern.test(formData.email.trim())) {
+        newErrors.email = 'Please enter a valid email'
+      }
+    }
     
     // Check character count for description (350 characters max)
     if (formData.description.trim()) {
@@ -187,6 +223,84 @@ export default function JoinForm({ isOpen, onClose, onAddStudent }: JoinFormProp
           }
         }
         
+        // EDIT MODE: update existing record and return early
+        if (mode === 'edit') {
+          const studentId = initialData?.id
+          if (!studentId) {
+            setErrors(prev => ({ ...prev, name: 'Missing student id for edit.' }))
+            return
+          }
+
+          const sessionRes = await supabase?.auth.getSession()
+          const accessToken = sessionRes?.data.session?.access_token
+          if (!accessToken) {
+            setErrors(prev => ({ ...prev, name: 'You must be signed in to edit.' }))
+            return
+          }
+
+          const updatePayload: any = {
+            name: formData.name,
+            skill: formData.primarySkill,
+            secondary_skills: formData.secondarySkills,
+            header: formData.header,
+            description: formData.description,
+            grad_year: formData.gradYear,
+            personal_site: formData.personalSite,
+            x_url: formData.xUrl,
+            linkedin_url: formData.linkedinUrl
+          }
+          if (profileImageUrl) updatePayload.profile_image_url = profileImageUrl
+
+          const updateRes = await fetch(`/api/students/${studentId}`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${accessToken}` },
+            body: JSON.stringify(updatePayload)
+          })
+
+          if (!updateRes.ok) {
+            let errorText = 'Error updating student. Please try again.'
+            try {
+              const json = await updateRes.json()
+              errorText = json?.error || errorText
+            } catch (_) {}
+            setErrors(prev => ({ ...prev, name: errorText }))
+            return
+          }
+
+          // Regenerate embedding after update
+          setIsGeneratingEmbedding(true)
+          try {
+            const searchText = studentToSearchText({
+              name: formData.name,
+              skill: formData.primarySkill,
+              secondarySkills: formData.secondarySkills,
+              header: formData.header,
+              description: formData.description,
+              gradYear: formData.gradYear
+            })
+
+            const embedding = await generateEmbedding(searchText)
+            const embeddingRes = await fetch('/api/students/update-embedding', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ studentId, embedding })
+            })
+            if (!embeddingRes.ok) {
+              console.error('Failed to store embedding (student still updated):', await embeddingRes.text())
+            } else {
+              console.log('✓ Embedding regenerated successfully')
+            }
+          } catch (embeddingError) {
+            console.error('Failed to generate embedding (student still updated):', embeddingError)
+          } finally {
+            setIsGeneratingEmbedding(false)
+          }
+
+          onClose()
+          setErrors({})
+          return
+        }
+        
         // Step 2: Create new student object for Supabase
         const newStudent = {
           name: formData.name,
@@ -196,6 +310,7 @@ export default function JoinForm({ isOpen, onClose, onAddStudent }: JoinFormProp
           header: formData.header,
           description: formData.description,
           grad_year: formData.gradYear,
+          email: formData.email,
           personal_site: formData.personalSite,
           x_url: formData.xUrl,
           linkedin_url: formData.linkedinUrl,
@@ -286,6 +401,7 @@ export default function JoinForm({ isOpen, onClose, onAddStudent }: JoinFormProp
           skill: formData.primarySkill,
           secondarySkills: formData.secondarySkills,
           gradYear: formData.gradYear,
+          email: formData.email,
           personalSite: formData.personalSite,
           xUrl: formData.xUrl,
           linkedinUrl: formData.linkedinUrl,
@@ -301,6 +417,7 @@ export default function JoinForm({ isOpen, onClose, onAddStudent }: JoinFormProp
           primarySkill: '',
           secondarySkills: [],
           gradYear: '',
+          email: '',
           personalSite: '',
           xUrl: '',
           linkedinUrl: '',
@@ -389,6 +506,23 @@ export default function JoinForm({ isOpen, onClose, onAddStudent }: JoinFormProp
               />
               {errors.gradYear && <p className="text-red-400 text-sm mt-2">{errors.gradYear}</p>}
             </div>
+          </div>
+
+          {/* Email */}
+          <div>
+            <label className="block text-lg font-light text-white mb-3">
+              Email
+            </label>
+            <input
+              type="email"
+              value={formData.email}
+              onChange={(e) => handleInputChange('email', e.target.value)}
+              className={`w-full px-4 py-3 bg-transparent border rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-gray-600 transition-colors text-base ${
+                errors.email ? 'border-red-500' : 'border-gray-700'
+              }`}
+              placeholder="you@example.com"
+            />
+            {errors.email && <p className="text-red-400 text-sm mt-2">{errors.email}</p>}
           </div>
 
           {/* Header */}

@@ -10,6 +10,7 @@ import FilterModal from './components/FilterModal'
 import HeroSection from './components/HeroSection'
 import BackgroundOverlay from './components/BackgroundOverlay'
 import SearchModal from './components/SearchModal'
+import EditProfileEmailModal from './components/EditProfileEmailModal'
 
 interface Student {
   name: string
@@ -40,6 +41,7 @@ export default function Home() {
   const [selectedSkills, setSelectedSkills] = useState<string[]>([])
   const [selectedYears, setSelectedYears] = useState<string[]>([])
   const [showSearchModal, setShowSearchModal] = useState(false)
+  const [showEditEmailModal, setShowEditEmailModal] = useState(false)
 
   // Preload embedding model in background
   useEffect(() => {
@@ -231,7 +233,7 @@ export default function Home() {
       gradientTo="to-black"
       className="min-h-screen"
     >
-      <Header onJoinClick={() => setShowJoinForm(true)} />
+      <Header onJoinClick={() => setShowJoinForm(true)} onEditClick={() => setShowEditEmailModal(true)} />
       <div className="min-h-screen flex pt-16">        
 
         {/* Left Column - Search - Hidden on mobile and iPad */}
@@ -299,6 +301,12 @@ export default function Home() {
           isOpen={showSearchModal}
           onClose={() => setShowSearchModal(false)}
           onStudentClick={scrollToStudent}
+        />
+        
+        {/* Edit Profile Email Modal */}
+        <EditProfileEmailModal 
+          isOpen={showEditEmailModal}
+          onClose={() => setShowEditEmailModal(false)}
         />
       </div>
     </BackgroundOverlay>
