@@ -705,7 +705,7 @@ export default function JoinForm({ isOpen, onClose, onAddStudent, mode = 'create
             {isGeneratingEmbedding && (
               <p className="text-blue-400 text-sm mb-4 text-center flex items-center justify-center">
                 <span className="w-4 h-4 border-2 border-blue-400 border-t-transparent rounded-full animate-spin mr-2"></span>
-                Generating AI search data...
+                Uploading data...
               </p>
             )}
             
